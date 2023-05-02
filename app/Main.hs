@@ -10,9 +10,6 @@ import Text.Regex.TDFA
 
 data Word = Com Text | Op Text | Datum Int | Undefined deriving (Show, Eq)
 
-words :: HM.HashMap Text Word
-words = HM.fromList [("print", Com "PRINT"), ("+", Op "ADD"), ("*", Op "MULTIPLY")]
-
 tokenize :: Text -> [[Char]]
 tokenize = LS.splitOn " " . T.unpack
 
