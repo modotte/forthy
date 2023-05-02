@@ -37,6 +37,7 @@ library
       base >=4.7 && <5
     , regex-tdfa
     , relude
+    , split
     , unordered-containers
   default-language: Haskell2010
 
@@ -54,6 +55,7 @@ executable forthy-exe
     , forthy
     , regex-tdfa
     , relude
+    , split
     , unordered-containers
   default-language: Haskell2010
 
@@ -73,5 +75,6 @@ test-suite forthy-test
     , hspec
     , regex-tdfa
     , relude
+    , split
     , unordered-containers
   default-language: Haskell2010

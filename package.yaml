@@ -25,6 +25,7 @@ dependencies:
 - relude
 - unordered-containers
 - regex-tdfa
+- split
 
 ghc-options:
 - -Wall
