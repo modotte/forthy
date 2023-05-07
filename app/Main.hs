@@ -52,8 +52,21 @@ handleOps op execStack = case op of
           [] -> []
           y : zs -> x * y : zs
 
-eval :: Token -> ExecStack -> IO (Either Text Token)
-eval token execStack = pure $ Left ""
+handleComms :: Comm -> ExecStack -> IO ()
+handleComms comm execStack = do
+  case comm of
+    Print -> print execStack
+    Exit -> exitSuccess
+
+type Term = (Token, ExecStack)
+
+eval :: Token -> ExecStack -> IO (Either Text Term)
+eval token execStack = case token of
+  Datum x -> pure $ Right (token, x : execStack)
+  Operator x -> pure $ Right (token, handleOps x execStack)
+  Command x -> do
+    _ <- handleComms x execStack
+    pure $ Right (token, execStack)
 
 read :: IO Text
 read =
