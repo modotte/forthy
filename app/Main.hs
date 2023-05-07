@@ -10,18 +10,23 @@ import Text.Regex.TDFA
 
 data Word = Com Text | Op Text | Datum Int | Undefined deriving (Show, Eq)
 
-tokenize :: Text -> [[Char]]
-tokenize = LS.splitOn " " . T.unpack
+tokenize :: Text -> [Text]
+tokenize =
+  fmap T.pack <$> sp
+  where
+    sp = LS.splitOn " " . T.unpack
 
-parseToken :: String -> Word
+parseToken :: Text -> Word
 parseToken token
-  | token =~ ("[0-9]+" :: String) =
-      maybe Undefined Datum $ readMaybe token
+  | token =~ ("[0-9]+" :: Text) =
+      maybe Undefined Datum $ readMaybe $ T.unpack token
   | token == "+" = Op "ADD"
   | token == "*" = Op "MULTIPLY"
-  | token == "print" = Com "PRINT"
+  | token == "." = Com "PRINT"
   | otherwise = Undefined
+
+execStack = []
 
 main :: IO ()
 main = do
-  print $ parseToken <$> tokenize "1 2 + print"
+  print $ parseToken <$> tokenize "1 2 + ."
