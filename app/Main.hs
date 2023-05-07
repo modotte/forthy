@@ -11,7 +11,7 @@ data Op = Add | Multiply deriving (Show, Eq)
 
 data Comm = Print | Exit deriving (Show, Eq)
 
-data Token = Command Comm | Operator Op | Datum Int deriving (Show, Eq)
+data Token = Command Comm | Operator Op | Datum Int | Blank deriving (Show, Eq)
 
 tokenize :: Text -> Either Text Token
 tokenize tokText
@@ -23,6 +23,10 @@ tokenize tokText
   | tokText == "*" = Right $ Operator Multiply
   | tokText == "." = Right $ Command Print
   | tokText == "bye" = Right $ Command Exit
+  | tokText == " " = Right Blank
+  | tokText == "" = Right Blank
+  | tokText == "\n" = Right Blank
+  | tokText == "\t" = Right Blank
   | otherwise = Left "Invalid token"
 
 type ExecStack = [Int]
@@ -57,6 +61,7 @@ eval (token, execStack) =
   case token of
     Datum x -> Right (token, x : execStack)
     Operator x -> Right (token, handleOps x execStack)
+    Blank -> Right (token, execStack)
     _ -> Left "Command not handled yet"
 
 read :: IO Text
@@ -65,19 +70,19 @@ read =
     >> hFlush stdout
     >> getLine
 
-exec :: Text -> Either Text Term
-exec input = do
+exec :: Text -> [Int] -> Either Text Term
+exec input stackExec = do
   case tokenize input of
     Left err -> Left err
     Right token ->
-      case eval (token, []) of
+      case eval (token, stackExec) of
         Left err -> Left err
         Right term -> Right term
 
 main :: IO ()
 main = do
   input <- read
-  case exec input of
+  case exec input [] of
     Left err -> do
       print err
       main
