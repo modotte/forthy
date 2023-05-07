@@ -3,7 +3,6 @@
 
 module Main (main) where
 
-import Data.List.Split qualified as LS
 import Data.Text qualified as T
 import Relude hiding (Op, Undefined, Word)
 import Text.Regex.TDFA ((=~))
@@ -13,12 +12,6 @@ data Op = Add | Multiply deriving (Show, Eq)
 data Comm = Print | Exit deriving (Show, Eq)
 
 data Token = Command Comm | Operator Op | Datum Int deriving (Show, Eq)
-
-splitted :: Text -> [Text]
-splitted =
-  fmap T.pack <$> xs
-  where
-    xs = LS.splitOn " " . T.unpack
 
 tokenize :: Text -> Either Text Token
 tokenize tokText
