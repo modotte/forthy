@@ -88,6 +88,7 @@ main :: IO ()
 main = do
   input <- read
   ex <- exec input
+  print ex
   case ex of
     Left err -> print err
     Right _ -> main
