@@ -60,25 +60,18 @@ handleComms comm execStack = do
 
 type Term = (Token, ExecStack)
 
-evalEnv :: Term -> IO (Either Text Term)
+evalEnv :: Term -> Either Text Term
 evalEnv (token, execStack) =
   case token of
-    Datum x -> pure $ Right (token, x : execStack)
-    Operator x -> pure $ Right (token, handleOps x execStack)
-    Command x -> do
-      _ <- handleComms x execStack
-      pure $ Right (token, execStack)
+    Datum x -> Right (token, x : execStack)
+    Operator x -> Right (token, handleOps x execStack)
+    _ -> Left "Unhandled token (probably command)"
 
 read :: IO Text
 read =
   putStr "$> "
     >> hFlush stdout
     >> getLine
-
-interpret word =
-  case tokenize word of
-    Left x -> print x
-    Right x -> evalEnv (x, []) >>= mempty
 
 main :: IO ()
 main = do
