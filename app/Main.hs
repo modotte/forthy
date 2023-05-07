@@ -75,6 +75,11 @@ read =
     >> hFlush stdout
     >> getLine
 
+interpret word =
+  case tokenize word of
+    Left x -> print x
+    Right x -> evalEnv (x, []) >>= mempty
+
 main :: IO ()
 main = do
   pure ()
