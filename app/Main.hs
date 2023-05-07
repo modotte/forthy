@@ -6,7 +6,7 @@ module Main (main) where
 import Data.List.Split qualified as LS
 import Data.Text qualified as T
 import Relude hiding (Op, Undefined, Word)
-import Text.Regex.TDFA
+import Text.Regex.TDFA ((=~))
 
 data Op = Add | Multiply deriving (Show, Eq)
 
@@ -59,8 +59,8 @@ handleComms comm execStack = do
 
 type Term = (Token, ExecStack)
 
-evalEnv :: Term -> Either Text Term
-evalEnv (token, execStack) =
+eval :: Term -> Either Text Term
+eval (token, execStack) =
   case token of
     Datum x -> Right (token, x : execStack)
     Operator x -> Right (token, handleOps x execStack)
@@ -72,6 +72,19 @@ read =
     >> hFlush stdout
     >> getLine
 
+exec :: Text -> Either Text Term
+exec input = do
+  case tokenize input of
+    Left err -> Left err
+    Right token ->
+      case eval (token, []) of
+        Left err -> Left err
+        Right term -> eval term
+
 main :: IO ()
 main = do
-  pure ()
+  input <- read
+
+  case exec input of
+    Left err -> print err
+    Right _ -> main
