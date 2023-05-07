@@ -15,22 +15,22 @@ data Comm = Print | Exit deriving (Show, Eq)
 
 data Token = Command Comm | Operator Op | Datum Int deriving (Show, Eq)
 
-tokenize :: Text -> [Text]
-tokenize =
+splitted :: Text -> [Text]
+splitted =
   fmap T.pack <$> xs
   where
     xs = LS.splitOn " " . T.unpack
 
-parse :: Text -> Either Text Token
-parse token
-  | token =~ ("[0-9]+" :: Text) =
-      case readMaybe $ T.unpack token of
+tokenize :: Text -> Either Text Token
+tokenize tokText
+  | tokText =~ ("[0-9]+" :: Text) =
+      case readMaybe $ T.unpack tokText of
         Nothing -> Left "Invalid integer input"
         Just x -> Right $ Datum x
-  | token == "+" = Right $ Operator Add
-  | token == "*" = Right $ Operator Multiply
-  | token == "." = Right $ Command Print
-  | token == "bye" = Right $ Command Exit
+  | tokText == "+" = Right $ Operator Add
+  | tokText == "*" = Right $ Operator Multiply
+  | tokText == "." = Right $ Command Print
+  | tokText == "bye" = Right $ Command Exit
   | otherwise = Left "Invalid token"
 
 type ExecStack = [Int]
@@ -60,13 +60,14 @@ handleComms comm execStack = do
 
 type Term = (Token, ExecStack)
 
-eval :: Token -> ExecStack -> IO (Either Text Term)
-eval token execStack = case token of
-  Datum x -> pure $ Right (token, x : execStack)
-  Operator x -> pure $ Right (token, handleOps x execStack)
-  Command x -> do
-    _ <- handleComms x execStack
-    pure $ Right (token, execStack)
+evalEnv :: Term -> IO (Either Text Term)
+evalEnv (token, execStack) =
+  case token of
+    Datum x -> pure $ Right (token, x : execStack)
+    Operator x -> pure $ Right (token, handleOps x execStack)
+    Command x -> do
+      _ <- handleComms x execStack
+      pure $ Right (token, execStack)
 
 read :: IO Text
 read =
