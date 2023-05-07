@@ -3,7 +3,6 @@
 
 module Main (main) where
 
-import Data.HashMap.Strict qualified as HM
 import Data.List.Split qualified as LS
 import Data.Text qualified as T
 import Relude hiding (Op, Undefined, Word)
