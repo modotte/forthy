@@ -17,11 +17,11 @@ data Token = Command Comm | Operator Op | Datum Int deriving (Show, Eq)
 
 tokenize :: Text -> [Text]
 tokenize =
-  fmap T.pack <$> sp
+  fmap T.pack <$> xs
   where
-    sp = LS.splitOn " " . T.unpack
+    xs = LS.splitOn " " . T.unpack
 
-parse :: Text -> Either String Token
+parse :: Text -> Either Text Token
 parse token
   | token =~ ("[0-9]+" :: Text) =
       case readMaybe $ T.unpack token of
@@ -52,8 +52,8 @@ handleOps op execStack = case op of
           [] -> []
           y : zs -> x * y : zs
 
-eval :: Token -> ExecStack -> IO ()
-eval token execStack = pure ()
+eval :: Token -> ExecStack -> IO (Either Text Token)
+eval token execStack = pure $ Left ""
 
 read :: IO Text
 read =
@@ -63,5 +63,4 @@ read =
 
 main :: IO ()
 main = do
-  input <- read
   pure ()
