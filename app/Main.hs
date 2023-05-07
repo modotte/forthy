@@ -33,33 +33,25 @@ parseToken token
 
 type ExecStack = [Int]
 
-handleOps :: Op -> ExecStack -> (Int, ExecStack)
+handleOps :: Op -> ExecStack -> ExecStack
 handleOps op execStack = case op of
   Add ->
     case execStack of
-      [] -> (0, [])
+      [] -> []
       x : xs ->
         case xs of
-          [] -> (0, [])
-          y : zs -> (x + y, zs)
+          [] -> []
+          y : zs -> (x + y) : zs
   Multiply ->
     case execStack of
-      [] -> (0, [])
+      [] -> []
       x : xs ->
         case xs of
-          [] -> (0, [])
-          y : zs -> (x + y, zs)
+          [] -> []
+          y : zs -> x * y : zs
 
 eval :: Text -> ExecStack -> IO ExecStack
-eval text execStack =
-  pure $
-    fmap
-      ( \case
-          Datum x -> x
-          Operator x -> fst $ handleOps x execStack
-          _ -> 0
-      )
-      tokens
+eval text execStack = pure execStack
   where
     tokens = parseToken <$> tokenize text
 
