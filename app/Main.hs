@@ -13,7 +13,7 @@ data Op = Add | Multiply deriving (Show, Eq)
 
 data Comm = Print | Exit deriving (Show, Eq)
 
-data Token = Command Comm | Operator Op | Datum Int | Undefined deriving (Show, Eq)
+data Token = Command Comm | Operator Op | Datum Int deriving (Show, Eq)
 
 tokenize :: Text -> [Text]
 tokenize =
@@ -21,15 +21,17 @@ tokenize =
   where
     sp = LS.splitOn " " . T.unpack
 
-parseToken :: Text -> Token
-parseToken token
+parse :: Text -> Either String Token
+parse token
   | token =~ ("[0-9]+" :: Text) =
-      maybe Undefined Datum $ readMaybe $ T.unpack token
-  | token == "+" = Operator Add
-  | token == "*" = Operator Multiply
-  | token == "." = Command Print
-  | token == "bye" = Command Exit
-  | otherwise = Undefined
+      case readMaybe $ T.unpack token of
+        Nothing -> Left "Invalid integer input"
+        Just x -> Right $ Datum x
+  | token == "+" = Right $ Operator Add
+  | token == "*" = Right $ Operator Multiply
+  | token == "." = Right $ Command Print
+  | token == "bye" = Right $ Command Exit
+  | otherwise = Left "Invalid token"
 
 type ExecStack = [Int]
 
@@ -50,24 +52,16 @@ handleOps op execStack = case op of
           [] -> []
           y : zs -> x * y : zs
 
-eval :: Text -> ExecStack -> IO ExecStack
-eval text execStack = pure execStack
-  where
-    tokens = parseToken <$> tokenize text
+eval :: Token -> ExecStack -> IO ()
+eval token execStack = pure ()
 
 read :: IO Text
 read =
-  putStr "FORTHY> "
+  putStr "$> "
     >> hFlush stdout
     >> getLine
 
 main :: IO ()
 main = do
   input <- read
-
-  case parseToken input of
-    Command x ->
-      case x of
-        Exit -> pure ()
-        _ -> pure ()
-    _ -> eval input [] >> main
+  pure ()
