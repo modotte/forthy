@@ -3,6 +3,7 @@
 
 module Main (main) where
 
+import Data.List.Split (splitOn)
 import Data.Text qualified as T
 import Relude hiding (Op, Undefined, Word)
 import Text.Regex.TDFA ((=~))
@@ -28,6 +29,18 @@ tokenize tokText
   | tokText == "\n" = Right Blank
   | tokText == "\t" = Right Blank
   | otherwise = Left "Invalid token"
+
+splitted :: Text -> [Text]
+splitted source = T.pack <$> splitOn " " (T.unpack source)
+
+tok :: Text -> [Either Text Token]
+tok source =
+  filter
+    ( \case
+        Left _ -> True
+        Right x -> x /= Blank
+    )
+    $ map tokenize (splitted source)
 
 type ExecStack = [Int]
 
