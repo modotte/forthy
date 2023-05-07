@@ -25,7 +25,7 @@ tokenize tokText
   | tokText == "." = Right $ Command Print
   | tokText == "bye" = Right $ Command Exit
   | tokText == " " = Right Blank
-  | tokText == "" = Right Blank -- TODO: Isolate for REPL only.
+  | tokText == "" = Right Blank
   | tokText == "\n" = Right Blank
   | tokText == "\t" = Right Blank
   | otherwise = Left "Invalid token"
