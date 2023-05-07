@@ -52,14 +52,12 @@ handleComms comm execStack = do
 
 type Term = (Token, ExecStack)
 
-eval :: Term -> IO (Either Text Term)
+eval :: Term -> Either Text Term
 eval (token, execStack) =
   case token of
-    Datum x -> pure $ Right (token, x : execStack)
-    Operator x -> pure $ Right (token, handleOps x execStack)
-    Command x -> do
-      _ <- handleComms x execStack
-      pure $ Right (token, execStack)
+    Datum x -> Right (token, x : execStack)
+    Operator x -> Right (token, handleOps x execStack)
+    _ -> Left "Command not handled yet"
 
 read :: IO Text
 read =
@@ -67,21 +65,20 @@ read =
     >> hFlush stdout
     >> getLine
 
-exec :: Text -> IO (Either Text Term)
+exec :: Text -> Either Text Term
 exec input = do
   case tokenize input of
-    Left err -> pure $ Left err
-    Right token -> do
-      tterm <- eval (token, [])
-      case tterm of
-        Left err -> pure $ Left err
-        Right term -> pure $ Right term
+    Left err -> Left err
+    Right token ->
+      case eval (token, []) of
+        Left err -> Left err
+        Right term -> Right term
 
 main :: IO ()
 main = do
   input <- read
-  ex <- exec input
-  print ex
-  case ex of
-    Left err -> print err
+  case exec input of
+    Left err -> do
+      print err
+      main
     Right _ -> main
