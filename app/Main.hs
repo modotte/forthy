@@ -8,7 +8,7 @@ import Data.Default.Class (Default (def))
 import Data.Stack (Stack)
 import Data.Stack qualified as S
 import Data.Text qualified as T
-import Data.Types
+import Data.Types (AppState (..), Eff (..), ForthyError, Op (..), Token (..))
 import Data.Types qualified as DT
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word)
@@ -55,11 +55,22 @@ handleOps =
     Multiply -> multiply
     Dup -> dup
 
+ePrint :: (MonadIO m, MonadState AppState m) => m ()
+ePrint = gets DT.stack >>= print
+
 handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Eff -> m ()
 handleEffs =
   \case
-    Print -> gets DT.stack >>= print
+    Print -> ePrint
     Exit -> exitSuccess
+
+exampleRun :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
+exampleRun = do
+  S.push 1
+  S.push 2
+  ePrint
+  add
+  ePrint
 
 runStateExceptT :: Monad m => s -> ExceptT e (StateT s m) a -> m (Either e a, s)
 runStateExceptT s = flip runStateT s . runExceptT
