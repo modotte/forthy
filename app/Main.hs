@@ -23,7 +23,7 @@ tokenize :: Text -> Either Text Token
 tokenize tokText
   | tokText =~ ("[0-9]+" :: Text) =
       case readMaybe $ T.unpack tokText of
-        Nothing -> Left "Invalid integer input"
+        Nothing -> Left "Invalid integer type"
         Just x -> Right $ Datum x
   | tokText == "+" = Right $ Operator Add
   | tokText == "*" = Right $ Operator Multiply
