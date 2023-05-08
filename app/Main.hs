@@ -6,6 +6,7 @@ module Main (main) where
 import Data.List.Split (splitOn)
 import Data.Text qualified as T
 import Relude hiding (Op, Undefined, Word)
+import Stack
 import Text.Regex.TDFA ((=~))
 
 data Op = Add | Multiply deriving (Show, Eq)
@@ -42,61 +43,5 @@ tok source =
     )
     $ map tokenize (splitted source)
 
-type ExecStack = [Int]
-
-handleOps :: Op -> ExecStack -> ExecStack
-handleOps op execStack = case op of
-  Add ->
-    case execStack of
-      [] -> []
-      x : xs ->
-        case xs of
-          [] -> []
-          y : zs -> (x + y) : zs
-  Multiply ->
-    case execStack of
-      [] -> []
-      x : xs ->
-        case xs of
-          [] -> []
-          y : zs -> x * y : zs
-
-handleComms :: Comm -> ExecStack -> IO ()
-handleComms comm execStack = do
-  case comm of
-    Print -> print execStack
-    Exit -> exitSuccess
-
-type Term = (Token, ExecStack)
-
-eval :: Term -> Either Text Term
-eval (token, execStack) =
-  case token of
-    Datum x -> Right (token, x : execStack)
-    Operator x -> Right (token, handleOps x execStack)
-    Blank -> Right (token, execStack)
-    _ -> Left "Command not handled yet"
-
-read :: IO Text
-read =
-  putStr "$> "
-    >> hFlush stdout
-    >> getLine
-
-exec :: Text -> [Int] -> Either Text Term
-exec input stackExec = do
-  case tokenize input of
-    Left err -> Left err
-    Right token ->
-      case eval (token, stackExec) of
-        Left err -> Left err
-        Right term -> Right term
-
 main :: IO ()
-main = do
-  input <- read
-  case exec input [] of
-    Left err -> do
-      print err
-      main
-    Right _ -> main
+main = pure ()
