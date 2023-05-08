@@ -27,6 +27,7 @@ dependencies:
   - regex-tdfa
   - split
   - llvm-hs-pure
+  - mtl
 
 ghc-options:
   - -Wall

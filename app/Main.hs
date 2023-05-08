@@ -59,7 +59,7 @@ dup :: Stack -> Either ForthyError Stack
 dup stack =
   case S.pop stack of
     Nothing -> Left StackUnderflow
-    Just v -> _
+    Just v -> Left StackUnderflow
 
 handleOps :: Op -> Stack -> Either ForthyError Stack
 handleOps op stack =
@@ -67,18 +67,6 @@ handleOps op stack =
     Add -> add stack
     Multiply -> multiply stack
     Dup -> dup stack
-
-splitted :: Text -> [Text]
-splitted source = T.pack <$> splitOn " " (T.unpack source)
-
-tok :: Text -> [Either Text Token]
-tok source =
-  filter
-    ( \case
-        Left _ -> True
-        Right x -> x /= Blank
-    )
-    $ map tokenize (splitted source)
 
 main :: IO ()
 main = do

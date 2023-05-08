@@ -37,6 +37,7 @@ library
   build-depends:
       base >=4.7 && <5
     , llvm-hs-pure
+    , mtl
     , regex-tdfa
     , relude
     , split
@@ -56,6 +57,7 @@ executable forthy-exe
       base >=4.7 && <5
     , forthy
     , llvm-hs-pure
+    , mtl
     , regex-tdfa
     , relude
     , split
@@ -77,6 +79,7 @@ test-suite forthy-test
     , forthy
     , hspec
     , llvm-hs-pure
+    , mtl
     , regex-tdfa
     , relude
     , split
