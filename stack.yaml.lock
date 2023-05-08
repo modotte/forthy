@@ -3,7 +3,33 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    commit: 1a697fd00d2fd69f2d010442225edfa3c93f59ee
+    git: https://github.com/modotte/llvm-hs
+    name: llvm-hs-pure
+    pantry-tree:
+      sha256: 30056259b6293722dc5287cb880bf3690341b0a99395759c6866afea22a58d48
+      size: 2652
+    subdir: llvm-hs-pure
+    version: 9.0.1.1
+  original:
+    commit: 1a697fd00d2fd69f2d010442225edfa3c93f59ee
+    git: https://github.com/modotte/llvm-hs
+    subdir: llvm-hs-pure
+- completed:
+    commit: 1a697fd00d2fd69f2d010442225edfa3c93f59ee
+    git: https://github.com/modotte/llvm-hs
+    name: llvm-hs
+    pantry-tree:
+      sha256: 0b8b342674e29c6909cca8dfcb2f387d9ce2b4cbdef9dab020bc9b805d956c94
+      size: 14018
+    subdir: llvm-hs
+    version: 9.0.1.1
+  original:
+    commit: 1a697fd00d2fd69f2d010442225edfa3c93f59ee
+    git: https://github.com/modotte/llvm-hs
+    subdir: llvm-hs
 snapshots:
 - completed:
     sha256: 42f77c84b34f68c30c2cd0bf8c349f617a0f428264362426290847a6a2019b64
