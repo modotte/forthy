@@ -1,7 +1,7 @@
 module Data.Stack (module Data.Stack, module Data.Stack.Types) where
 
 import Data.Bifunctor qualified as B
-import Data.Stack.Types (Stack (Stack, unStack))
+import Data.Stack.Types (Stack (..))
 import Data.Stack.Types qualified as ST
 import Data.Vector qualified as V
 import Relude hiding (empty, state)
