@@ -21,10 +21,6 @@ push x =
     let stack = addStack x $ DT.stack state
      in state {DT.stack = stack}
 
-checkSize :: Int -> Stack -> Bool
-checkSize requiredSize stack =
-  length (ST.unStack stack) >= requiredSize
-
 updateStack :: (MonadState AppState m) => Stack -> m ()
 updateStack stack = do
   oldState <- get
@@ -33,9 +29,8 @@ updateStack stack = do
 pop :: (MonadState AppState m, MonadError ForthyError m) => m Integer
 pop = do
   stack <- gets DT.stack
-  if checkSize 1 stack
-    then do
-      let (hd, tl) = V.splitAt 1 $ ST.unStack stack
+  case V.uncons $ ST.unStack stack of
+    Nothing -> throwError StackUnderflow
+    Just (hd, tl) -> do
       updateStack $ ST.Stack tl
-      pure $ V.head hd
-    else throwError StackUnderflow
+      pure hd

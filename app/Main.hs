@@ -1,5 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Main (main) where
 
@@ -58,7 +59,7 @@ handleOps =
 ePrint :: (MonadIO m, MonadState AppState m) => m ()
 ePrint = gets DT.stack >>= print
 
-handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Eff -> m ()
+handleEffs :: (MonadIO m, MonadState AppState m) => Eff -> m ()
 handleEffs =
   \case
     Print -> ePrint
@@ -68,12 +69,17 @@ exampleRun :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m 
 exampleRun = do
   S.push 1
   S.push 2
+  S.push 3
   ePrint
+  _ <- S.pop
+  ePrint
+  add
+  add
   add
   ePrint
 
-runStateExceptT :: Monad m => s -> ExceptT e (StateT s m) a -> m (Either e a, s)
-runStateExceptT s = flip runStateT s . runExceptT
+runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
+runExceptStateT s = runExceptT . flip runStateT s
 
 instance Default AppState where
   def :: AppState
@@ -81,4 +87,5 @@ instance Default AppState where
 
 main :: IO ()
 main = do
+  runExceptStateT (def :: AppState) exampleRun >>= print
   pure ()
