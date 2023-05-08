@@ -4,10 +4,12 @@
 module Main (main) where
 
 import Control.Monad.Error.Class (MonadError)
+import Data.Default.Class (Default (def))
 import Data.Stack (Stack)
 import Data.Stack qualified as S
 import Data.Text qualified as T
 import Data.Types
+import Data.Types qualified as DT
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word)
 import Text.Regex.TDFA ((=~))
@@ -52,6 +54,19 @@ handleOps =
     Add -> add
     Multiply -> multiply
     Dup -> dup
+
+handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Eff -> m ()
+handleEffs =
+  \case
+    Print -> gets DT.stack >>= print
+    Exit -> exitSuccess
+
+runStateExceptT :: Monad m => s -> ExceptT e (StateT s m) a -> m (Either e a, s)
+runStateExceptT s = flip runStateT s . runExceptT
+
+instance Default AppState where
+  def :: AppState
+  def = AppState {buffer = [], stack = S.empty}
 
 main :: IO ()
 main = do

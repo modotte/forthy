@@ -28,6 +28,7 @@ dependencies:
   - split
   - llvm-hs-pure
   - mtl
+  - data-default-class
 
 ghc-options:
   - -Wall
