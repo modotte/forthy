@@ -3,13 +3,13 @@
 
 module Main (main) where
 
+import Data.Stack (Stack)
+import Data.Stack qualified as S
 import Data.Text qualified as T
+import Data.Types
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word)
 import Text.Regex.TDFA ((=~))
-import Data.Stack (Stack)
-import Data.Stack qualified as S
-import Data.Types
 
 tokenize :: Text -> Either Text Token
 tokenize tt
