@@ -1,5 +1,6 @@
 module Data.Stack (module Data.Stack.Types, empty, push, pop) where
 
+import Control.Monad.Error.Class (MonadError, throwError)
 import Data.Stack.Types
 import Data.Stack.Types qualified as ST
 import Data.Types (AppState, ForthyError (..))
@@ -29,12 +30,12 @@ updateStack stack = do
   oldState <- get
   put $ oldState {DT.stack = stack}
 
-pop :: (MonadState AppState m) => m (Either ForthyError Integer)
+pop :: (MonadState AppState m, MonadError ForthyError m) => m Integer
 pop = do
   stack <- gets DT.stack
   if checkSize 1 stack
     then do
       let (hd, tl) = V.splitAt 1 $ ST.unStack stack
       updateStack $ ST.Stack tl
-      pure $ Right $ V.head hd
-    else pure $ Left StackUnderflow
+      pure $ V.head hd
+    else throwError StackUnderflow
