@@ -11,9 +11,9 @@ import Text.Regex.TDFA ((=~))
 
 data Op = Add | Multiply deriving (Show, Eq)
 
-data Comm = Print | Exit deriving (Show, Eq)
+data Eff = Print | Exit deriving (Show, Eq)
 
-data Token = Command Comm | Operator Op | Datum Int | Blank deriving (Show, Eq)
+data Token = Effect Eff | Operator Op | Datum Integer | Blank deriving (Show, Eq)
 
 tokenize :: Text -> Either Text Token
 tokenize tokText
@@ -23,8 +23,8 @@ tokenize tokText
         Just x -> Right $ Datum x
   | tokText == "+" = Right $ Operator Add
   | tokText == "*" = Right $ Operator Multiply
-  | tokText == "." = Right $ Command Print
-  | tokText == "bye" = Right $ Command Exit
+  | tokText == "." = Right $ Effect Print
+  | tokText == "bye" = Right $ Effect Exit
   | tokText == " " = Right Blank
   | tokText == "" = Right Blank
   | tokText == "\n" = Right Blank
