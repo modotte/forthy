@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module Data.Stack.Types where
+module Data.Stack.Types (Stack (..)) where
 
 import Data.Vector (Vector)
 
