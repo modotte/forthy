@@ -1,15 +1,16 @@
-{-# LANGUAGE DerivingStrategies #-}
-
-module Stack (Stack (..), empty, push, pop) where
+module Stack (empty, push, pop) where
 
 import Data.Bifunctor qualified as B
 import Data.Vector (Vector)
 import Data.Vector qualified as V
-
-newtype Stack = Stack {unStack :: Vector Integer} deriving newtype (Show, Eq)
+import Relude.Extra qualified as RE
+import Types (Stack(..))
 
 empty :: Stack
 empty = Stack V.empty
+
+addStack :: Integer -> Stack -> Stack
+addStack x = RE.under (V.cons x)
 
 push :: Integer -> Stack -> Stack
 push x (Stack s) = Stack $ V.cons x s

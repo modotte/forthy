@@ -7,17 +7,10 @@ import Data.List.Split (splitOn)
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word)
-import Stack (Stack (..))
+import Types 
+import Types (unStack)
 import Stack qualified as S
 import Text.Regex.TDFA ((=~))
-
-data Op = Add | Multiply | Dup deriving (Show, Eq)
-
-data Eff = Print | Exit deriving (Show, Eq)
-
-data Token = Effect Eff | Operator Op | Datum Integer | Blank deriving (Show, Eq)
-
-data ForthyError = StackUnderflow deriving (Show, Eq)
 
 tokenize :: Text -> Either Text Token
 tokenize tt
@@ -37,12 +30,12 @@ tokenize tt
 
 checkSize :: Int -> Stack -> Bool
 checkSize requiredSize stack =
-  length (S.unStack stack) >= requiredSize
+  length (unStack stack) >= requiredSize
 
 add :: Stack -> Either ForthyError Stack
 add stack =
   let size = 2
-      (elems, stack') = V.splitAt size $ S.unStack stack
+      (elems, stack') = V.splitAt size $ unStack stack
    in if checkSize size stack
         then Right $ S.push (sum elems) $ Stack stack'
         else Left StackUnderflow
@@ -50,7 +43,7 @@ add stack =
 multiply :: Stack -> Either ForthyError Stack
 multiply stack =
   let size = 2
-      (elems, stack') = V.splitAt size $ S.unStack stack
+      (elems, stack') = V.splitAt size $ unStack stack
    in if checkSize size stack
         then Right $ S.push (product elems) $ Stack stack'
         else Left StackUnderflow

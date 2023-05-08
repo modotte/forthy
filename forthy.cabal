@@ -27,6 +27,7 @@ library
   exposed-modules:
       Lib
       Stack
+      Types
   other-modules:
       Paths_forthy
   hs-source-dirs:
