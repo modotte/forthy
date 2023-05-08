@@ -71,11 +71,11 @@ exampleRun = do
   S.push 2
   S.push 3
   ePrint
-  _ <- S.pop
+  add
   ePrint
   add
-  add
-  add
+  ePrint
+  _ <- S.pop
   ePrint
 
 runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
@@ -83,7 +83,7 @@ runExceptStateT s = runExceptT . flip runStateT s
 
 instance Default AppState where
   def :: AppState
-  def = AppState {buffer = [], stack = S.empty}
+  def = AppState {buffer = [], stack = S.empty, isInCompileMode = False}
 
 main :: IO ()
 main = do

@@ -5,7 +5,8 @@ import Relude hiding (Op, Undefined, Word)
 
 data AppState = AppState
   { buffer :: [Text],
-    stack :: Stack
+    stack :: Stack,
+    isInCompileMode :: Bool
   }
   deriving (Show, Eq)
 
