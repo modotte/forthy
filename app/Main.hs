@@ -11,7 +11,7 @@ import Stack (Stack (..))
 import Stack qualified as S
 import Text.Regex.TDFA ((=~))
 
-data Op = Add | Multiply deriving (Show, Eq)
+data Op = Add | Multiply | Dup deriving (Show, Eq)
 
 data Eff = Print | Exit deriving (Show, Eq)
 
@@ -20,19 +20,19 @@ data Token = Effect Eff | Operator Op | Datum Integer | Blank deriving (Show, Eq
 data ForthyError = StackUnderflow deriving (Show, Eq)
 
 tokenize :: Text -> Either Text Token
-tokenize tokText
-  | tokText =~ ("[0-9]+" :: Text) =
-      case readMaybe $ T.unpack tokText of
+tokenize tt
+  | tt =~ ("[0-9]+" :: Text) =
+      case readMaybe $ T.unpack tt of
         Nothing -> Left "Invalid integer type"
         Just x -> Right $ Datum x
-  | tokText == "+" = Right $ Operator Add
-  | tokText == "*" = Right $ Operator Multiply
-  | tokText == "." = Right $ Effect Print
-  | tokText == "bye" = Right $ Effect Exit
-  | tokText == " " = Right Blank
-  | tokText == "" = Right Blank
-  | tokText == "\n" = Right Blank
-  | tokText == "\t" = Right Blank
+  | tt == "+" = Right $ Operator Add
+  | tt == "*" = Right $ Operator Multiply
+  | tt == "." = Right $ Effect Print
+  | tt == "bye" = Right $ Effect Exit
+  | tt == " " = Right Blank
+  | tt == "" = Right Blank
+  | tt == "\n" = Right Blank
+  | tt == "\t" = Right Blank
   | otherwise = Left "Invalid token"
 
 checkSize :: Int -> Stack -> Bool
@@ -55,11 +55,18 @@ multiply stack =
         then Right $ S.push (product elems) $ Stack stack'
         else Left StackUnderflow
 
+dup :: Stack -> Either ForthyError Stack
+dup stack =
+  case S.pop stack of
+    Nothing -> Left StackUnderflow
+    Just v -> _
+
 handleOps :: Op -> Stack -> Either ForthyError Stack
 handleOps op stack =
   case op of
     Add -> add stack
     Multiply -> multiply stack
+    Dup -> dup stack
 
 splitted :: Text -> [Text]
 splitted source = T.pack <$> splitOn " " (T.unpack source)
