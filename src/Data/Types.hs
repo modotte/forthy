@@ -1,4 +1,4 @@
-module Data.Types (AppState (..), Op (..), Eff (..), Token (..), ForthyError (..)) where
+module Data.Types (AppState (..), Op (..), Eff (..), Token (..), ForthyError (..), AppMonad) where
 
 import Data.Stack.Types (Stack)
 import Relude hiding (Op, Undefined, Word)
@@ -8,6 +8,8 @@ data AppState = AppState
     stack :: Stack
   }
   deriving (Show, Eq)
+
+type AppMonad = ExceptT ForthyError (State AppState)
 
 data Op = Add | Multiply | Dup deriving (Show, Eq)
 
