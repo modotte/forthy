@@ -40,6 +40,19 @@ multiply = do
   y <- S.pop
   S.push $ x * y
 
+dup :: (MonadState AppState m, MonadError ForthyError m) => m ()
+dup = do
+  x <- S.pop
+  S.push x
+  S.push x
+
+handleOps :: (MonadState AppState m, MonadError ForthyError m) => Op -> m ()
+handleOps =
+  \case
+    Add -> add
+    Multiply -> multiply
+    Dup -> dup
+
 main :: IO ()
 main = do
   pure ()
