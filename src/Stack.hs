@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module Stack (Stack, empty, push, pop) where
+module Stack (Stack (..), empty, push, pop) where
 
 import Data.Bifunctor qualified as B
 import Data.Vector (Vector)
