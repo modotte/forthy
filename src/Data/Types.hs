@@ -9,6 +9,8 @@ data AppState = AppState
   }
   deriving (Show, Eq)
 
+data ForthyError = StackUnderflow deriving (Show, Eq)
+
 type ParseMonad = ExceptT ForthyError (State AppState)
 
 data Op = Add | Multiply | Dup deriving (Show, Eq)
@@ -16,5 +18,3 @@ data Op = Add | Multiply | Dup deriving (Show, Eq)
 data Eff = Print | Exit deriving (Show, Eq)
 
 data Token = Effect Eff | Operator Op | Datum Integer | Blank deriving (Show, Eq)
-
-data ForthyError = StackUnderflow deriving (Show, Eq)
