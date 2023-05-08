@@ -6,7 +6,7 @@ module Main (main) where
 import Data.List.Split (splitOn)
 import Data.Text qualified as T
 import Relude hiding (Op, Undefined, Word)
-import Stack
+import Stack qualified as S
 import Text.Regex.TDFA ((=~))
 
 data Op = Add | Multiply deriving (Show, Eq)
