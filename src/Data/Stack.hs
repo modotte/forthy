@@ -1,10 +1,10 @@
-module Stack (empty, push, pop) where
+module Data.Stack (module Data.Stack, module Data.Stack.Types) where
 
 import Data.Bifunctor qualified as B
-import Data.Vector (Vector)
 import Data.Vector qualified as V
+import Relude hiding (empty, state)
 import Relude.Extra qualified as RE
-import Types (Stack(..))
+import Data.Stack.Types
 
 empty :: Stack
 empty = Stack V.empty
@@ -13,7 +13,7 @@ addStack :: Integer -> Stack -> Stack
 addStack x = RE.under (V.cons x)
 
 push :: Integer -> Stack -> Stack
-push x (Stack s) = Stack $ V.cons x s
+push x s = s
 
 pop :: Stack -> Maybe (Integer, Stack)
 pop (Stack s) =

@@ -1,15 +1,11 @@
-{-# LANGUAGE DerivingStrategies #-}
+module Data.Types (AppState (..), Op (..), Eff (..), Token (..), ForthyError (..)) where
 
-module Types (Stack (..), AppState (..), Op (..), Eff (..), Token (..), ForthyError (..)) where
-
-import Data.Vector (Vector)
+import Data.Stack.Types (Stack)
 import Relude hiding (Op, Undefined, Word)
-
-newtype Stack = Stack {unStack :: Vector Integer} deriving newtype (Show, Eq)
 
 data AppState = AppState
   { buffer :: [Text],
-    stack :: [Stack]
+    stack :: Stack
   }
   deriving (Show, Eq)
 

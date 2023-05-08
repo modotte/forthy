@@ -3,14 +3,13 @@
 
 module Main (main) where
 
-import Data.List.Split (splitOn)
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word)
-import Types 
-import Types (unStack)
-import Stack qualified as S
 import Text.Regex.TDFA ((=~))
+import Data.Stack (Stack)
+import Data.Stack qualified as S
+import Data.Types
 
 tokenize :: Text -> Either Text Token
 tokenize tt
@@ -30,22 +29,22 @@ tokenize tt
 
 checkSize :: Int -> Stack -> Bool
 checkSize requiredSize stack =
-  length (unStack stack) >= requiredSize
+  length (S.unStack stack) >= requiredSize
 
 add :: Stack -> Either ForthyError Stack
 add stack =
   let size = 2
-      (elems, stack') = V.splitAt size $ unStack stack
+      (elems, stack') = V.splitAt size $ S.unStack stack
    in if checkSize size stack
-        then Right $ S.push (sum elems) $ Stack stack'
+        then Right $ S.push (sum elems) $ S.Stack stack'
         else Left StackUnderflow
 
 multiply :: Stack -> Either ForthyError Stack
 multiply stack =
   let size = 2
-      (elems, stack') = V.splitAt size $ unStack stack
+      (elems, stack') = V.splitAt size $ S.unStack stack
    in if checkSize size stack
-        then Right $ S.push (product elems) $ Stack stack'
+        then Right $ S.push (product elems) $ S.Stack stack'
         else Left StackUnderflow
 
 dup :: Stack -> Either ForthyError Stack
