@@ -95,9 +95,7 @@ handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Ef
 handleEffs =
   \case
     DT.Print -> ePrint
-    DT.Exit -> do
-      putTextLn "bye!"
-      exitSuccess
+    DT.Exit -> putTextLn "bye!" >> exitSuccess
 
 evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
 evalEnv token =

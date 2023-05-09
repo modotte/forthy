@@ -1,1 +1,1 @@
-10 20 + . 50 32 44 rot rot rot . . .
+10 20 + . 50 32 44 rot rot rot . . . bye
