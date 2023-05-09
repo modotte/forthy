@@ -5,6 +5,7 @@ module Main (main) where
 
 import Control.Exception (throwIO)
 import Control.Monad.Error.Class (MonadError)
+import Data.HashMap.Strict qualified as HM
 import Data.List.Split qualified as DLS
 import Data.Stack qualified as S
 import Data.Text qualified as T
@@ -137,5 +138,6 @@ main = do
               DT.AppState
                 { DT.buffer = splitText source,
                   DT.stack = S.empty,
+                  DT.dictionary = HM.empty,
                   DT.isInCompileMode = False
                 }

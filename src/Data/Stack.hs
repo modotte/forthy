@@ -8,10 +8,10 @@ import Data.Types qualified as DT
 import Data.Vector qualified as V
 import Relude hiding (empty, print, state)
 
-empty :: Stack
+empty :: Stack Integer
 empty = ST.Stack V.empty
 
-addStack :: Integer -> Stack -> Stack
+addStack :: Integer -> Stack Integer -> Stack Integer
 addStack x (ST.Stack s) = ST.Stack $ V.snoc s x
 
 push :: (MonadState AppState m) => Integer -> m ()
@@ -20,7 +20,7 @@ push x =
     let stack = addStack x $ DT.stack state
      in state {DT.stack = stack}
 
-updateStack :: (MonadState AppState m) => Stack -> m ()
+updateStack :: (MonadState AppState m) => Stack Integer -> m ()
 updateStack stack = do
   oldState <- get
   put $ oldState {DT.stack = stack}
