@@ -20,6 +20,7 @@ tokenize tt
       maybe Blank Datum (readMaybe $ T.unpack tt)
   | tt == "+" = Operator Add
   | tt == "*" = Operator Multiply
+  | tt == "dup" = Operator Dup
   | tt == "." = Effect Print
   | tt == "bye" = Effect Exit
   | tt == " " = Blank
@@ -88,7 +89,7 @@ runExceptStateT s = runExceptT . flip runStateT s
 
 instance Default AppState where
   def :: AppState
-  def = AppState {buffer = ["1", "2", "+", "."], stack = S.empty, isInCompileMode = False}
+  def = AppState {buffer = ["1", "2", "+", ".", "5", "dup", "+", "."], stack = S.empty, isInCompileMode = False}
 
 main :: IO ()
 main = do
