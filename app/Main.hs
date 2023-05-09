@@ -16,23 +16,26 @@ import System.Environment qualified as SE
 import Text.Regex.TDFA ((=~))
 
 tokenize :: Text -> Token
-tokenize tt
-  | tt =~ ("[0-9]+" :: Text) =
-      maybe DT.Blank DT.Datum (readMaybe $ T.unpack tt)
-  | tt == "+" = DT.Operator DT.Add
-  | tt == "*" = DT.Operator DT.Multiply
-  | tt == "dup" = DT.Operator DT.Dup
-  | tt == "drop" = DT.Operator DT.Drop
-  | tt == "swap" = DT.Operator DT.Swap
-  | tt == "over" = DT.Operator DT.Over
-  | tt == "rot" = DT.Operator DT.Rot
-  | tt == "." = DT.Effect DT.Print
-  | tt == "bye" = DT.Effect DT.Exit
-  | tt == " " = DT.Blank
-  | tt == "" = DT.Blank
-  | tt == "\n" = DT.Blank
-  | tt == "\t" = DT.Blank
-  | otherwise = DT.Blank
+tokenize tt =
+  if tt =~ ("[0-9]+" :: Text)
+    then maybe DT.Blank DT.Datum (readMaybe $ T.unpack tt)
+    else case tt of
+      "+" -> DT.Operator DT.Add
+      "*" -> DT.Operator DT.Multiply
+      "dup" -> DT.Operator DT.Dup
+      "drop" -> DT.Operator DT.Drop
+      "swap" -> DT.Operator DT.Swap
+      "over" -> DT.Operator DT.Over
+      "rot" -> DT.Operator DT.Rot
+      "." -> DT.Effect DT.Print
+      "bye" -> DT.Effect DT.Exit
+      "fun" -> DT.Operator DT.Fun
+      "end" -> DT.Operator DT.End
+      " " -> DT.Blank
+      "" -> DT.Blank
+      "\n" -> DT.Blank
+      "\t" -> DT.Blank
+      _rest -> DT.Identifier _rest
 
 add :: (MonadState AppState m, MonadError ForthyError m) => m ()
 add = do
