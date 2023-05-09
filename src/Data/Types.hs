@@ -7,6 +7,7 @@ data AppState = AppState
   { buffer :: [Text],
     stack :: Stack Integer,
     dictionary :: HashMap Text [Token],
+    compiledActions :: [Token],
     isInCompileMode :: Bool
   }
   deriving (Show, Eq)
@@ -28,7 +29,7 @@ data Op
   | LargerThan
   | SmallerThan
   | Fun
-  | End
+  | EndFun
   deriving (Show, Eq)
 
 data Eff = Print | Exit deriving (Show, Eq)

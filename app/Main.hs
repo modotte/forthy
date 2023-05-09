@@ -38,7 +38,7 @@ tokenize tt =
       "." -> DT.Effect DT.Print
       "bye" -> DT.Effect DT.Exit
       "fun" -> DT.Operator DT.Fun
-      "end" -> DT.Operator DT.End
+      "endfun" -> DT.Operator DT.EndFun
       " " -> DT.Blank
       "" -> DT.Blank
       "\n" -> DT.Blank
@@ -197,5 +197,6 @@ main = do
                 { DT.buffer = splitText source,
                   DT.stack = S.empty,
                   DT.dictionary = HM.empty,
+                  DT.compiledActions = [],
                   DT.isInCompileMode = False
                 }
