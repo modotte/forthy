@@ -53,11 +53,12 @@ handleOps =
     Multiply -> multiply
     Dup -> dup
 
--- TODO: Imitate standard FORTH print behavior.
-ePrint :: (MonadIO m, MonadState AppState m) => m ()
-ePrint = gets DT.stack >>= print
+ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
+ePrint = do
+  x <- S.pop
+  print x
 
-handleEffs :: (MonadIO m, MonadState AppState m) => Eff -> m ()
+handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Eff -> m ()
 handleEffs =
   \case
     Print -> ePrint
@@ -77,7 +78,6 @@ eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
   buffer <- gets DT.buffer
   let tokens = tokenize <$> buffer
-  print $ fmap tokenize buffer
   foldr
     (\x acc -> evalEnv x >>= pure acc)
     (pure ())
@@ -88,9 +88,10 @@ runExceptStateT s = runExceptT . flip runStateT s
 
 instance Default AppState where
   def :: AppState
-  def = AppState {buffer = ["1", "2", "+", ".", "4", "+", "."], stack = S.empty, isInCompileMode = False}
+  def = AppState {buffer = ["1", "2", "+", "."], stack = S.empty, isInCompileMode = False}
 
 main :: IO ()
 main = do
+  let source = ""
   runExceptStateT (def :: AppState) eval >>= print
   pure ()
