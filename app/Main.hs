@@ -9,7 +9,7 @@ import Data.Stack qualified as S
 import Data.Text qualified as T
 import Data.Types (AppState, Eff, ForthyError, Op, Token)
 import Data.Types qualified as DT
-import Relude hiding (Op, Undefined, Word, swap)
+import Relude hiding (Op, Undefined, Word, second, swap)
 import Text.Regex.TDFA ((=~))
 
 tokenize :: Text -> Token
@@ -21,6 +21,7 @@ tokenize tt
   | tt == "dup" = DT.Operator DT.Dup
   | tt == "drop" = DT.Operator DT.Drop
   | tt == "swap" = DT.Operator DT.Swap
+  | tt == "over" = DT.Operator DT.Over
   | tt == "." = DT.Effect DT.Print
   | tt == "bye" = DT.Effect DT.Exit
   | tt == " " = DT.Blank
@@ -54,6 +55,14 @@ swap = do
   S.push x
   S.push y
 
+over :: (MonadState AppState m, MonadError ForthyError m) => m ()
+over = do
+  first <- S.pop
+  second <- S.pop
+  S.push second
+  S.push first
+  S.push second
+
 handleOps :: (MonadState AppState m, MonadError ForthyError m) => Op -> m ()
 handleOps =
   \case
@@ -64,6 +73,7 @@ handleOps =
       _ <- S.pop
       pure ()
     DT.Swap -> swap
+    DT.Over -> over
 
 ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
 ePrint = do
@@ -105,7 +115,7 @@ main :: IO ()
 main = do
   let appState =
         DT.AppState
-          { DT.buffer = splitText " 1 2 + . 5 dup + . 3 6 swap .",
+          { DT.buffer = splitText " 1 2 + . 5 dup + . 3 6 swap . 9 over over over over",
             DT.stack = S.empty,
             DT.isInCompileMode = False
           }
