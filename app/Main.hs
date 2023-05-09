@@ -9,7 +9,7 @@ import Data.Stack qualified as S
 import Data.Text qualified as T
 import Data.Types (AppState, Eff, ForthyError, Op, Token)
 import Data.Types qualified as DT
-import Relude hiding (Op, Undefined, Word)
+import Relude hiding (Op, Undefined, Word, swap)
 import Text.Regex.TDFA ((=~))
 
 tokenize :: Text -> Token
@@ -19,6 +19,8 @@ tokenize tt
   | tt == "+" = DT.Operator DT.Add
   | tt == "*" = DT.Operator DT.Multiply
   | tt == "dup" = DT.Operator DT.Dup
+  | tt == "drop" = DT.Operator DT.Drop
+  | tt == "swap" = DT.Operator DT.Swap
   | tt == "." = DT.Effect DT.Print
   | tt == "bye" = DT.Effect DT.Exit
   | tt == " " = DT.Blank
@@ -45,12 +47,23 @@ dup = do
   S.push x
   S.push x
 
+swap :: (MonadState AppState m, MonadError ForthyError m) => m ()
+swap = do
+  x <- S.pop
+  y <- S.pop
+  S.push x
+  S.push y
+
 handleOps :: (MonadState AppState m, MonadError ForthyError m) => Op -> m ()
 handleOps =
   \case
     DT.Add -> add
     DT.Multiply -> multiply
     DT.Dup -> dup
+    DT.Drop -> do
+      _ <- S.pop
+      pure ()
+    DT.Swap -> swap
 
 ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
 ePrint = do
@@ -92,7 +105,7 @@ main :: IO ()
 main = do
   let appState =
         DT.AppState
-          { DT.buffer = splitText " 1 2 + . 5 dup + .",
+          { DT.buffer = splitText " 1 2 + . 5 dup + . 3 6 swap .",
             DT.stack = S.empty,
             DT.isInCompileMode = False
           }

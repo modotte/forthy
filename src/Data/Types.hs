@@ -12,7 +12,7 @@ data AppState = AppState
 
 data ForthyError = StackUnderflow deriving (Show, Eq)
 
-data Op = Add | Multiply | Dup deriving (Show, Eq)
+data Op = Add | Multiply | Dup | Drop | Swap deriving (Show, Eq)
 
 data Eff = Print | Exit deriving (Show, Eq)
 
