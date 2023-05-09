@@ -53,6 +53,7 @@ handleOps =
     Multiply -> multiply
     Dup -> dup
 
+-- TODO: Imitate standard FORTH print behavior.
 ePrint :: (MonadIO m, MonadState AppState m) => m ()
 ePrint = gets DT.stack >>= print
 
@@ -60,13 +61,31 @@ handleEffs :: (MonadIO m, MonadState AppState m) => Eff -> m ()
 handleEffs =
   \case
     Print -> ePrint
-    Exit -> exitSuccess
+    Exit -> do
+      putTextLn "bye!"
+      exitSuccess
+
+eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Token -> m ()
+eval token =
+  case token of
+    Datum x -> S.push x
+    Effect eff -> handleEffs eff
+    Operator op -> handleOps op
+    Blank -> pure ()
 
 exampleRun :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 exampleRun = do
   buffer <- gets DT.buffer
   let q = map tokenize buffer
-  ePrint
+
+  eval $ Datum 1
+  eval $ Datum 2
+  eval $ Operator Add
+  eval $ Effect Print
+  eval $ Datum 2
+  eval $ Operator Multiply
+  eval $ Effect Print
+  eval $ Effect Exit
 
 runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
 runExceptStateT s = runExceptT . flip runStateT s
