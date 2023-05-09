@@ -81,9 +81,7 @@ handleOps =
     DT.Add -> add
     DT.Multiply -> multiply
     DT.Dup -> dup
-    DT.Drop -> do
-      _ <- S.pop
-      pure ()
+    DT.Drop -> void S.pop
     DT.Swap -> swap
     DT.Over -> over
     DT.Rot -> rot
