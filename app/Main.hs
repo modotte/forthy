@@ -3,7 +3,7 @@
 
 module Main (main) where
 
-import Control.Exception (throw, throwIO)
+import Control.Exception (throwIO)
 import Control.Monad.Error.Class (MonadError)
 import Data.List.Split qualified as DLS
 import Data.Stack qualified as S

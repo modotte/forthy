@@ -46,7 +46,7 @@ library
     , vector
   default-language: GHC2021
 
-executable forthy-exe
+executable forthy
   main-is: Main.hs
   other-modules:
       Paths_forthy

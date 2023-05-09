@@ -45,7 +45,7 @@ library:
   source-dirs: src
 
 executables:
-  forthy-exe:
+  forthy:
     main: Main.hs
     source-dirs: app
     ghc-options:
