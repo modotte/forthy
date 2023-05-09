@@ -65,27 +65,32 @@ handleEffs =
       putTextLn "bye!"
       exitSuccess
 
-eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Token -> m ()
-eval token =
+evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
+evalEnv token =
   case token of
     Datum x -> S.push x
     Effect eff -> handleEffs eff
     Operator op -> handleOps op
     Blank -> pure ()
 
-exampleRun :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
-exampleRun = do
+eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
+eval = do
   buffer <- gets DT.buffer
-  pure ()
+  let tokens = tokenize <$> buffer
+  print $ fmap tokenize buffer
+  foldr
+    (\x acc -> evalEnv x >>= pure acc)
+    (pure ())
+    tokens
 
 runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
 runExceptStateT s = runExceptT . flip runStateT s
 
 instance Default AppState where
   def :: AppState
-  def = AppState {buffer = ["1", "2", "+"], stack = S.empty, isInCompileMode = False}
+  def = AppState {buffer = ["1", "2", "+", ".", "4", "+", "."], stack = S.empty, isInCompileMode = False}
 
 main :: IO ()
 main = do
-  runExceptStateT (def :: AppState) exampleRun >>= print
+  runExceptStateT (def :: AppState) eval >>= print
   pure ()
