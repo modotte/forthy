@@ -90,11 +90,11 @@ splitText source = T.pack <$> DLS.splitOn " " (T.unpack source)
 
 main :: IO ()
 main = do
-  let source =
+  let appState =
         DT.AppState
           { DT.buffer = splitText " 1 2 + . 5 dup + .",
             DT.stack = S.empty,
             DT.isInCompileMode = False
           }
-  runExceptStateT source eval >>= print
+  runExceptStateT appState eval >>= print
   pure ()
