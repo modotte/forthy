@@ -14,21 +14,19 @@ import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word)
 import Text.Regex.TDFA ((=~))
 
-tokenize :: Text -> Either Text Token
+tokenize :: Text -> Token
 tokenize tt
   | tt =~ ("[0-9]+" :: Text) =
-      case readMaybe $ T.unpack tt of
-        Nothing -> Left "Invalid integer type"
-        Just x -> Right $ Datum x
-  | tt == "+" = Right $ Operator Add
-  | tt == "*" = Right $ Operator Multiply
-  | tt == "." = Right $ Effect Print
-  | tt == "bye" = Right $ Effect Exit
-  | tt == " " = Right Blank
-  | tt == "" = Right Blank
-  | tt == "\n" = Right Blank
-  | tt == "\t" = Right Blank
-  | otherwise = Left "Invalid token"
+      maybe Blank Datum (readMaybe $ T.unpack tt)
+  | tt == "+" = Operator Add
+  | tt == "*" = Operator Multiply
+  | tt == "." = Effect Print
+  | tt == "bye" = Effect Exit
+  | tt == " " = Blank
+  | tt == "" = Blank
+  | tt == "\n" = Blank
+  | tt == "\t" = Blank
+  | otherwise = Blank
 
 add :: (MonadState AppState m, MonadError ForthyError m) => m ()
 add = do
@@ -66,15 +64,8 @@ handleEffs =
 
 exampleRun :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 exampleRun = do
-  S.push 1
-  S.push 2
-  S.push 3
-  ePrint
-  add
-  ePrint
-  add
-  ePrint
-  _ <- S.pop
+  buffer <- gets DT.buffer
+  let q = map tokenize buffer
   ePrint
 
 runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
