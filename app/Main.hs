@@ -1,5 +1,4 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Main (main) where
@@ -83,7 +82,7 @@ runExceptStateT s = runExceptT . flip runStateT s
 
 instance Default AppState where
   def :: AppState
-  def = AppState {buffer = [], stack = S.empty, isInCompileMode = False}
+  def = AppState {buffer = ["1", "2", "+"], stack = S.empty, isInCompileMode = False}
 
 main :: IO ()
 main = do

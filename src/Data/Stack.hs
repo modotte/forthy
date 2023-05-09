@@ -5,15 +5,15 @@ import Data.Stack.Types
 import Data.Stack.Types qualified as ST
 import Data.Types (AppState, ForthyError (..))
 import Data.Types qualified as DT
+import Data.Vector (Vector)
 import Data.Vector qualified as V
-import Relude hiding (empty, state)
-import Relude.Extra qualified as RE
+import Relude hiding (empty, print, state)
 
 empty :: Stack
 empty = ST.Stack V.empty
 
 addStack :: Integer -> Stack -> Stack
-addStack x = RE.under $ V.cons x
+addStack x (ST.Stack s) = ST.Stack $ V.snoc s x
 
 push :: (MonadState AppState m) => Integer -> m ()
 push x =
@@ -29,8 +29,8 @@ updateStack stack = do
 pop :: (MonadState AppState m, MonadError ForthyError m) => m Integer
 pop = do
   stack <- gets DT.stack
-  case V.uncons $ ST.unStack stack of
+  case V.unsnoc $ ST.unStack stack of
     Nothing -> throwError StackUnderflow
-    Just (hd, tl) -> do
+    Just (tl, hd) -> do
       updateStack $ ST.Stack tl
       pure hd
