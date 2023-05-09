@@ -76,16 +76,7 @@ eval token =
 exampleRun :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 exampleRun = do
   buffer <- gets DT.buffer
-  let q = map tokenize buffer
-
-  eval $ Datum 1
-  eval $ Datum 2
-  eval $ Operator Add
-  eval $ Effect Print
-  eval $ Datum 2
-  eval $ Operator Multiply
-  eval $ Effect Print
-  eval $ Effect Exit
+  pure ()
 
 runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
 runExceptStateT s = runExceptT . flip runStateT s
