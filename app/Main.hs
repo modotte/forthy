@@ -135,9 +135,7 @@ main = do
         Left err -> throwIO err
         Right source -> do
           t <- runExceptStateT appState eval
-          putText ":: <- Top"
-          putTextLn $ "\n" <> show t
-          pure ()
+          putTextLn $ "\n\n<<DEBUG VIEW>>\n" <> show t
           where
             appState =
               DT.AppState
