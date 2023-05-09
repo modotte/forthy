@@ -5,6 +5,8 @@ module Main (main) where
 
 import Control.Exception (throwIO)
 import Control.Monad.Error.Class (MonadError)
+import Data.Bits ((.&.), (.|.))
+import Data.Bits qualified as DB
 import Data.HashMap.Strict qualified as HM
 import Data.List.Split qualified as DLS
 import Data.Stack qualified as S
@@ -27,6 +29,12 @@ tokenize tt =
       "swap" -> DT.Operator DT.Swap
       "over" -> DT.Operator DT.Over
       "rot" -> DT.Operator DT.Rot
+      "=" -> DT.Operator DT.Equal
+      "invert" -> DT.Operator DT.Invert
+      "or" -> DT.Operator DT.Or
+      "and" -> DT.Operator DT.And
+      ">" -> DT.Operator DT.LargerThan
+      "<" -> DT.Operator DT.SmallerThan
       "." -> DT.Effect DT.Print
       "bye" -> DT.Effect DT.Exit
       "fun" -> DT.Operator DT.Fun
@@ -79,6 +87,47 @@ rot = do
   S.push first
   S.push third
 
+eTrue :: Integer
+eTrue = -1
+
+eFalse :: Integer
+eFalse = 0
+
+equal :: (MonadState AppState m, MonadError ForthyError m) => m ()
+equal = do
+  x <- S.pop
+  y <- S.pop
+  if x == y then S.push eTrue else S.push eFalse
+
+invert :: (MonadState AppState m, MonadError ForthyError m) => m ()
+invert = do
+  x <- S.pop
+  S.push $ DB.complement x
+
+eOr :: (MonadState AppState m, MonadError ForthyError m) => m ()
+eOr = do
+  x <- S.pop
+  y <- S.pop
+  S.push $ x .|. y
+
+eAnd :: (MonadState AppState m, MonadError ForthyError m) => m ()
+eAnd = do
+  x <- S.pop
+  y <- S.pop
+  S.push $ x .&. y
+
+largerThan :: (MonadState AppState m, MonadError ForthyError m) => m ()
+largerThan = do
+  x <- S.pop
+  y <- S.pop
+  S.push $ if y > x then eTrue else eFalse
+
+smallerThan :: (MonadState AppState m, MonadError ForthyError m) => m ()
+smallerThan = do
+  x <- S.pop
+  y <- S.pop
+  S.push $ if y < x then eTrue else eFalse
+
 handleOps :: (MonadState AppState m, MonadError ForthyError m) => Op -> m ()
 handleOps =
   \case
@@ -89,6 +138,12 @@ handleOps =
     DT.Swap -> swap
     DT.Over -> over
     DT.Rot -> rot
+    DT.Equal -> equal
+    DT.Invert -> invert
+    DT.Or -> eOr
+    DT.And -> eAnd
+    DT.LargerThan -> largerThan
+    DT.SmallerThan -> smallerThan
 
 ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
 ePrint = do

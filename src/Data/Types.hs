@@ -13,8 +13,30 @@ data AppState = AppState
 
 data ForthyError = StackUnderflow deriving (Show, Eq)
 
-data Op = Add | Multiply | Dup | Drop | Swap | Over | Rot | Fun | End deriving (Show, Eq)
+data Op
+  = Add
+  | Multiply
+  | Dup
+  | Drop
+  | Swap
+  | Over
+  | Rot
+  | Equal
+  | Invert
+  | Or
+  | And
+  | LargerThan
+  | SmallerThan
+  | Fun
+  | End
+  deriving (Show, Eq)
 
 data Eff = Print | Exit deriving (Show, Eq)
 
-data Token = Effect Eff | Operator Op | Datum Integer | Blank | Identifier Text deriving (Show, Eq)
+data Token
+  = Effect Eff
+  | Operator Op
+  | Datum Integer
+  | Blank
+  | Identifier Text
+  deriving (Show, Eq)
