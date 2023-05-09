@@ -3,6 +3,7 @@
 
 module Main (main) where
 
+import Control.Exception (throw, throwIO)
 import Control.Monad.Error.Class (MonadError)
 import Data.List.Split qualified as DLS
 import Data.Stack qualified as S
@@ -10,6 +11,7 @@ import Data.Text qualified as T
 import Data.Types (AppState, Eff, ForthyError, Op, Token)
 import Data.Types qualified as DT
 import Relude hiding (Op, Undefined, Word, first, second, swap)
+import System.Environment qualified as SE
 import Text.Regex.TDFA ((=~))
 
 tokenize :: Text -> Token
@@ -124,11 +126,19 @@ splitText source = T.pack <$> DLS.splitOn " " (T.unpack source)
 
 main :: IO ()
 main = do
-  let appState =
-        DT.AppState
-          { DT.buffer = splitText "1 dup + . 5 10 over 1 2 3 rot swap .",
-            DT.stack = S.empty,
-            DT.isInCompileMode = False
-          }
-  runExceptStateT appState eval >>= print
-  pure ()
+  args <- SE.getArgs
+  case args of
+    [] -> error "Missing filename argument! Example: forthy main.fth"
+    filename : _ -> do
+      rawSource <- readFileBS filename
+      case decodeUtf8' rawSource of
+        Left err -> throwIO err
+        Right source ->
+          runExceptStateT appState eval >>= print
+          where
+            appState =
+              DT.AppState
+                { DT.buffer = splitText source,
+                  DT.stack = S.empty,
+                  DT.isInCompileMode = False
+                }
