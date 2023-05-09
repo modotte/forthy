@@ -91,7 +91,7 @@ handleOps =
 ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
 ePrint = do
   x <- S.pop
-  print x
+  putText $ show x <> " "
 
 handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Eff -> m ()
 handleEffs =
@@ -133,8 +133,11 @@ main = do
       rawSource <- readFileBS filename
       case decodeUtf8' rawSource of
         Left err -> throwIO err
-        Right source ->
-          runExceptStateT appState eval >>= print
+        Right source -> do
+          t <- runExceptStateT appState eval
+          putText ":: <- Top"
+          putTextLn $ "\n" <> show t
+          pure ()
           where
             appState =
               DT.AppState
