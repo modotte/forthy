@@ -150,8 +150,7 @@ handleOps op = do
     DT.EndFun ->
       put $
         s
-          { DT.compiledActions = V.empty,
-            DT.isInCompileMode = False,
+          { DT.isInCompileMode = False,
             DT.currentCompileIdentifier = Nothing
           }
 
@@ -177,17 +176,23 @@ evalEnv token = do
     then case cidx of
       Nothing ->
         case token of
-          DT.Identifier idx -> put $ s {DT.dictionary = HM.insert idx V.empty dict, DT.currentCompileIdentifier = Just idx}
+          DT.Identifier idx ->
+            put $
+              s
+                { DT.dictionary = HM.insert idx V.empty dict,
+                  DT.currentCompileIdentifier = Just idx
+                }
           _ -> pure ()
-      Just idx ->
+      Just idx -> do
         if token == DT.Operator DT.EndFun
-          then pure ()
+          then handleOps DT.EndFun
           else put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
     else case token of
       DT.Datum x -> S.push x
       DT.Effect eff -> handleEffs eff
       DT.Operator op -> handleOps op
       DT.Blank -> pure ()
+      DT.Identifier _ -> throwError DT.MissingIdentifier
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
@@ -222,7 +227,6 @@ main = do
                 { DT.buffer = splitText source,
                   DT.stack = S.empty,
                   DT.dictionary = HM.empty,
-                  DT.compiledActions = V.empty,
                   DT.isInCompileMode = False,
                   DT.currentCompileIdentifier = Nothing
                 }

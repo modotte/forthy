@@ -8,7 +8,6 @@ data AppState = AppState
   { buffer :: [Text],
     stack :: Stack Integer,
     dictionary :: HashMap Text (Vector Token),
-    compiledActions :: (Vector Token),
     isInCompileMode :: Bool,
     currentCompileIdentifier :: Maybe Text
   }
