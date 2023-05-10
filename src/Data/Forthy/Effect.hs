@@ -1,14 +1,14 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Data.Forthy.Effect (module Data.Forthy.Types.Effect, handleEffs) where
+module Data.Forthy.Effect (handleEffs) where
 
 import ASCII qualified
 import Control.Monad.Error.Class (MonadError (throwError))
+import Data.AppState (AppState)
 import Data.Forthy.Types.Effect
 import Data.Forthy.Types.Error (ForthyError)
 import Data.Forthy.Types.Error qualified as DFTE
 import Data.Stack qualified as S
-import Data.Types (AppState)
 import Relude
 
 ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()

@@ -1,18 +1,17 @@
 module Data.Forthy.Operator
-  ( module Data.Forthy.Types.Operator,
-    handleOps,
+  ( handleOps,
   )
 where
 
 import Control.Monad.Error.Class (MonadError)
+import Data.AppState (AppState)
+import Data.AppState qualified as AS
 import Data.Bits (Bits ((.|.)), (.&.))
 import Data.Bits qualified as DB
 import Data.Forthy.Constants qualified as DFC
 import Data.Forthy.Types.Error (ForthyError)
 import Data.Forthy.Types.Operator
 import Data.Stack qualified as S
-import Data.Types (AppState)
-import Data.Types qualified as DT
 import Relude hiding (Op, and, first, or, second, swap)
 
 add :: (MonadState AppState m, MonadError ForthyError m) => m ()
@@ -109,10 +108,10 @@ handleOps op = do
     And -> and
     LargerThan -> largerThan
     SmallerThan -> smallerThan
-    Fun -> put $ s {DT.isInCompileMode = True}
+    Fun -> put $ s {AS.isInCompileMode = True}
     EndFun ->
       put $
         s
-          { DT.isInCompileMode = False,
-            DT.currentCompileIdentifier = Nothing
+          { AS.isInCompileMode = False,
+            AS.currentCompileIdentifier = Nothing
           }

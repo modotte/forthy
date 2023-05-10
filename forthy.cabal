@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Data.AppState
       Data.Forthy.Constants
       Data.Forthy.Effect
       Data.Forthy.Operator
@@ -34,7 +35,6 @@ library
       Data.Forthy.Types.Token
       Data.Stack
       Data.Stack.Types
-      Data.Types
   other-modules:
       Paths_forthy
   hs-source-dirs:

@@ -1,21 +1,23 @@
-{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Main (main) where
 
-import ASCII qualified
 import Control.Exception (throwIO)
 import Control.Monad.Error.Class (MonadError, throwError)
-import Data.Bits ((.&.), (.|.))
-import Data.Bits qualified as DB
+import Data.AppState (AppState)
+import Data.AppState qualified as AS
+import Data.Forthy.Effect qualified as DFE
+import Data.Forthy.Operator qualified as DFO
+import Data.Forthy.Types.Effect qualified as DFTEFF
+import Data.Forthy.Types.Error (ForthyError)
+import Data.Forthy.Types.Error qualified as DFTE
+import Data.Forthy.Types.Operator qualified as DFTO
+import Data.Forthy.Types.Token
+import Data.Forthy.Types.Token qualified as DFTT
 import Data.HashMap.Strict qualified as HM
 import Data.List.Split qualified as DLS
 import Data.Stack qualified as S
 import Data.Text qualified as T
-import Data.Types (AppState, Eff, Op, Token)
-import Data.Types qualified as DT
-import Data.Forthy.Types.Error (ForthyError)
-import Data.Forthy.Types.Error qualified as DTE
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word, first, second, swap)
 import System.Environment qualified as SE
@@ -24,192 +26,64 @@ import Text.Regex.TDFA ((=~))
 tokenize :: Text -> Token
 tokenize tt =
   if tt =~ ("^[0-9]+$" :: Text)
-    then maybe DT.Blank DT.Datum (readMaybe $ T.unpack tt)
+    then maybe DFTT.Blank DFTT.Datum (readMaybe $ T.unpack tt)
     else case tt of
-      "+" -> DT.Operator DT.Add
-      "*" -> DT.Operator DT.Multiply
-      "dup" -> DT.Operator DT.Dup
-      "drop" -> DT.Operator DT.Drop
-      "swap" -> DT.Operator DT.Swap
-      "over" -> DT.Operator DT.Over
-      "rot" -> DT.Operator DT.Rot
-      "emit" -> DT.Effect DT.Emit
-      "cr" -> DT.Effect DT.Newline
-      "=" -> DT.Operator DT.Equal
-      "invert" -> DT.Operator DT.Invert
-      "or" -> DT.Operator DT.Or
-      "and" -> DT.Operator DT.And
-      ">" -> DT.Operator DT.LargerThan
-      "<" -> DT.Operator DT.SmallerThan
-      "." -> DT.Effect DT.Print
-      "bye" -> DT.Effect DT.Exit
-      "fun" -> DT.Operator DT.Fun
-      "endfun" -> DT.Operator DT.EndFun
-      " " -> DT.Blank
-      "" -> DT.Blank
+      "+" -> DFTT.Operator DFTO.Add
+      "*" -> DFTT.Operator DFTO.Multiply
+      "dup" -> DFTT.Operator DFTO.Dup
+      "drop" -> DFTT.Operator DFTO.Drop
+      "swap" -> DFTT.Operator DFTO.Swap
+      "over" -> DFTT.Operator DFTO.Over
+      "rot" -> DFTT.Operator DFTO.Rot
+      "emit" -> DFTT.Effect DFTEFF.Emit
+      "cr" -> DFTT.Effect DFTEFF.Newline
+      "=" -> DFTT.Operator DFTO.Equal
+      "invert" -> DFTT.Operator DFTO.Invert
+      "or" -> DFTT.Operator DFTO.Or
+      "and" -> DFTT.Operator DFTO.And
+      ">" -> DFTT.Operator DFTO.LargerThan
+      "<" -> DFTT.Operator DFTO.SmallerThan
+      "." -> DFTT.Effect DFTEFF.Print
+      "bye" -> DFTT.Effect DFTEFF.Exit
+      "fun" -> DFTT.Operator DFTO.Fun
+      "endfun" -> DFTT.Operator DFTO.EndFun
+      " " -> DFTT.Blank
+      "" -> DFTT.Blank
       -- FIXME: Handle newlines correctly.
-      "\n" -> DT.Blank
-      "\t" -> DT.Blank
-      _rest -> DT.Identifier _rest
-
-add :: (MonadState AppState m, MonadError ForthyError m) => m ()
-add = do
-  x <- S.pop
-  y <- S.pop
-  S.push $ x + y
-
-multiply :: (MonadState AppState m, MonadError ForthyError m) => m ()
-multiply = do
-  x <- S.pop
-  y <- S.pop
-  S.push $ x * y
-
-dup :: (MonadState AppState m, MonadError ForthyError m) => m ()
-dup = do
-  x <- S.pop
-  S.push x
-  S.push x
-
-swap :: (MonadState AppState m, MonadError ForthyError m) => m ()
-swap = do
-  x <- S.pop
-  y <- S.pop
-  S.push x
-  S.push y
-
-over :: (MonadState AppState m, MonadError ForthyError m) => m ()
-over = do
-  first <- S.pop
-  second <- S.pop
-  S.push second
-  S.push first
-  S.push second
-
-rot :: (MonadState AppState m, MonadError ForthyError m) => m ()
-rot = do
-  first <- S.pop
-  second <- S.pop
-  third <- S.pop
-  S.push second
-  S.push first
-  S.push third
-
-emit :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
-emit = do
-  x <- S.pop
-  case ASCII.intToCharMaybe $ fromIntegral x of
-    Nothing -> throwError $ DTE.InvalidASCIIValue x
-    Just y -> putText $ ASCII.charListToText [y]
-
-eTrue :: Integer
-eTrue = -1
-
-eFalse :: Integer
-eFalse = 0
-
-equal :: (MonadState AppState m, MonadError ForthyError m) => m ()
-equal = do
-  x <- S.pop
-  y <- S.pop
-  if x == y then S.push eTrue else S.push eFalse
-
-invert :: (MonadState AppState m, MonadError ForthyError m) => m ()
-invert = do
-  x <- S.pop
-  S.push $ DB.complement x
-
-eOr :: (MonadState AppState m, MonadError ForthyError m) => m ()
-eOr = do
-  x <- S.pop
-  y <- S.pop
-  S.push $ x .|. y
-
-eAnd :: (MonadState AppState m, MonadError ForthyError m) => m ()
-eAnd = do
-  x <- S.pop
-  y <- S.pop
-  S.push $ x .&. y
-
-largerThan :: (MonadState AppState m, MonadError ForthyError m) => m ()
-largerThan = do
-  x <- S.pop
-  y <- S.pop
-  S.push $ if y > x then eTrue else eFalse
-
-smallerThan :: (MonadState AppState m, MonadError ForthyError m) => m ()
-smallerThan = do
-  x <- S.pop
-  y <- S.pop
-  S.push $ if y < x then eTrue else eFalse
-
-handleOps :: (MonadState AppState m, MonadError ForthyError m) => Op -> m ()
-handleOps op = do
-  s <- get
-  case op of
-    DT.Add -> add
-    DT.Multiply -> multiply
-    DT.Dup -> dup
-    DT.Drop -> void S.pop
-    DT.Swap -> swap
-    DT.Over -> over
-    DT.Rot -> rot
-    DT.Equal -> equal
-    DT.Invert -> invert
-    DT.Or -> eOr
-    DT.And -> eAnd
-    DT.LargerThan -> largerThan
-    DT.SmallerThan -> smallerThan
-    DT.Fun -> put $ s {DT.isInCompileMode = True}
-    DT.EndFun ->
-      put $
-        s
-          { DT.isInCompileMode = False,
-            DT.currentCompileIdentifier = Nothing
-          }
-
-ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
-ePrint = do
-  x <- S.pop
-  putText $ show x <> " "
-
-handleEffs :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => Eff -> m ()
-handleEffs =
-  \case
-    DT.Print -> ePrint
-    DT.Exit -> putTextLn "bye!" >> exitSuccess
-    DT.Emit -> emit
-    DT.Newline -> putTextLn ""
+      "\n" -> DFTT.Blank
+      "\t" -> DFTT.Blank
+      _rest -> DFTT.Identifier _rest
 
 evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
 evalEnv token = do
   s <- get
-  let dict = DT.dictionary s
-      compileMode = DT.isInCompileMode s
-      cidx = DT.currentCompileIdentifier s
+  let dict = AS.dictionary s
+      compileMode = AS.isInCompileMode s
+      cidx = AS.currentCompileIdentifier s
 
   if compileMode
     then case cidx of
       Nothing ->
         case token of
-          DT.Identifier idx ->
+          DFTT.Identifier idx ->
             put $
               s
-                { DT.dictionary = HM.insert idx V.empty dict,
-                  DT.currentCompileIdentifier = Just idx
+                { AS.dictionary = HM.insert idx V.empty dict,
+                  AS.currentCompileIdentifier = Just idx
                 }
           _ -> pure ()
       Just idx -> do
-        if token == DT.Operator DT.EndFun
-          then handleOps DT.EndFun
-          else put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
+        if token == DFTT.Operator DFTO.EndFun
+          then DFO.handleOps DFTO.EndFun
+          else put $ s {AS.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
     else case token of
-      DT.Datum x -> S.push x
-      DT.Effect eff -> handleEffs eff
-      DT.Operator op -> handleOps op
-      DT.Blank -> pure ()
-      DT.Identifier idx -> do
+      DFTT.Datum x -> S.push x
+      DFTT.Effect eff -> DFE.handleEffs eff
+      DFTT.Operator op -> DFO.handleOps op
+      DFTT.Blank -> pure ()
+      DFTT.Identifier idx -> do
         case HM.lookup idx dict of
-          Nothing -> throwError $ DTE.MissingIdentifier idx
+          Nothing -> throwError $ DFTE.MissingIdentifier idx
           Just tokens ->
             foldr
               (\x acc -> evalEnv x >>= pure acc)
@@ -218,7 +92,7 @@ evalEnv token = do
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
-  buffer <- gets DT.buffer
+  buffer <- gets AS.buffer
   let tokens = tokenize <$> buffer
   foldr
     (\x acc -> evalEnv x >>= pure acc)
@@ -245,10 +119,10 @@ main = do
           putTextLn $ "\n\n<<DEBUG VIEW>>\n" <> show t
           where
             appState =
-              DT.AppState
-                { DT.buffer = splitText source,
-                  DT.stack = S.empty,
-                  DT.dictionary = HM.empty,
-                  DT.isInCompileMode = False,
-                  DT.currentCompileIdentifier = Nothing
+              AS.AppState
+                { AS.buffer = splitText source,
+                  AS.stack = S.empty,
+                  AS.dictionary = HM.empty,
+                  AS.isInCompileMode = False,
+                  AS.currentCompileIdentifier = Nothing
                 }
