@@ -1,1 +1,1 @@
-fun myId 20 20 endfun myId . .
+fun myId 20 20 endfun myId . . fun mul2 2 * endfun 100 .

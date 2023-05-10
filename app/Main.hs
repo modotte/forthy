@@ -20,7 +20,7 @@ import Text.Regex.TDFA ((=~))
 
 tokenize :: Text -> Token
 tokenize tt =
-  if tt =~ ("[0-9]+" :: Text)
+  if tt =~ ("^[0-9]+$" :: Text)
     then maybe DT.Blank DT.Datum (readMaybe $ T.unpack tt)
     else case tt of
       "+" -> DT.Operator DT.Add
