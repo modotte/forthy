@@ -12,8 +12,10 @@ import Data.HashMap.Strict qualified as HM
 import Data.List.Split qualified as DLS
 import Data.Stack qualified as S
 import Data.Text qualified as T
-import Data.Types (AppState, Eff, ForthyError, Op, Token)
+import Data.Types (AppState, Eff, Op, Token)
 import Data.Types qualified as DT
+import Data.Types.Error (ForthyError)
+import Data.Types.Error qualified as DTE
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word, first, second, swap)
 import System.Environment qualified as SE
@@ -96,7 +98,7 @@ emit :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 emit = do
   x <- S.pop
   case ASCII.intToCharMaybe $ fromIntegral x of
-    Nothing -> throwError $ DT.InvalidASCIIValue x
+    Nothing -> throwError $ DTE.InvalidASCIIValue x
     Just y -> putText $ ASCII.charListToText [y]
 
 eTrue :: Integer
@@ -207,7 +209,7 @@ evalEnv token = do
       DT.Blank -> pure ()
       DT.Identifier idx -> do
         case HM.lookup idx dict of
-          Nothing -> throwError $ DT.MissingIdentifier idx
+          Nothing -> throwError $ DTE.MissingIdentifier idx
           Just tokens ->
             foldr
               (\x acc -> evalEnv x >>= pure acc)

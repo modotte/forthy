@@ -28,6 +28,7 @@ library
       Data.Stack
       Data.Stack.Types
       Data.Types
+      Data.Types.Error
   other-modules:
       Paths_forthy
   hs-source-dirs:

@@ -1,4 +1,4 @@
-module Data.Types (AppState (..), Op (..), Eff (..), Token (..), ForthyError (..)) where
+module Data.Types (AppState (..), Op (..), Eff (..), Token (..)) where
 
 import Data.Stack.Types (Stack)
 import Data.Vector (Vector)
@@ -11,12 +11,6 @@ data AppState = AppState
     isInCompileMode :: Bool,
     currentCompileIdentifier :: Maybe Text
   }
-  deriving (Show, Eq)
-
-data ForthyError
-  = StackUnderflow
-  | MissingIdentifier Text
-  | InvalidASCIIValue Integer
   deriving (Show, Eq)
 
 data Op

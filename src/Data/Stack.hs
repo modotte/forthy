@@ -3,8 +3,10 @@ module Data.Stack (module Data.Stack.Types, empty, push, pop) where
 import Control.Monad.Error.Class (MonadError, throwError)
 import Data.Stack.Types
 import Data.Stack.Types qualified as ST
-import Data.Types (AppState, ForthyError (..))
+import Data.Types (AppState)
 import Data.Types qualified as DT
+import Data.Types.Error (ForthyError)
+import Data.Types.Error qualified as DTE
 import Data.Vector qualified as V
 import Relude hiding (empty, print, state)
 
@@ -29,7 +31,7 @@ pop :: (MonadState AppState m, MonadError ForthyError m) => m Integer
 pop = do
   stack <- gets DT.stack
   case V.unsnoc $ ST.unStack stack of
-    Nothing -> throwError StackUnderflow
+    Nothing -> throwError DTE.StackUnderflow
     Just (tl, hd) -> do
       updateStack $ ST.Stack tl
       pure hd
