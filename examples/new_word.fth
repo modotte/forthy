@@ -1,1 +1,1 @@
-fun zero 5 endfun
+fun zero 10 20 30 40 + * . endfun

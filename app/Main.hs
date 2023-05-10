@@ -152,7 +152,8 @@ handleOps =
       s <- get
       put $
         s
-          { DT.isInCompileMode = False,
+          { DT.compiledActions = V.empty,
+            DT.isInCompileMode = False,
             DT.currentCompileIdentifier = Nothing
           }
 
@@ -174,18 +175,22 @@ evalEnv token = do
       cm = DT.isInCompileMode s
       cidx = DT.currentCompileIdentifier s
 
-  case cidx of
-    Nothing ->
-      case token of
-        DT.Datum x -> S.push x
-        DT.Effect eff -> handleEffs eff
-        DT.Operator op -> handleOps op
-        DT.Blank -> pure ()
-        DT.Identifier _ -> pure ()
-    Just idx ->
-      if HM.member idx dict
-        then put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
-        else put $ s {DT.dictionary = HM.insert idx V.empty dict, DT.currentCompileIdentifier = Just idx}
+  if cm
+    then case cidx of
+      Nothing ->
+        case token of
+          DT.Identifier idx -> put $ s {DT.currentCompileIdentifier = Just idx}
+          _ -> pure ()
+      Just idx ->
+        if HM.member idx dict
+          then put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
+          else put $ s {DT.dictionary = HM.insert idx V.empty dict, DT.currentCompileIdentifier = Just idx}
+    else case token of
+      DT.Datum x -> S.push x
+      DT.Effect eff -> handleEffs eff
+      DT.Operator op -> handleOps op
+      DT.Blank -> pure ()
+      DT.Identifier _ -> throwError DT.MissingIdentifier
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
@@ -220,7 +225,7 @@ main = do
                 { DT.buffer = splitText source,
                   DT.stack = S.empty,
                   DT.dictionary = HM.empty,
-                  DT.compiledActions = [],
+                  DT.compiledActions = V.empty,
                   DT.isInCompileMode = False,
                   DT.currentCompileIdentifier = Nothing
                 }
