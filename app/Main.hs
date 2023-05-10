@@ -42,6 +42,7 @@ tokenize tt =
       "endfun" -> DT.Operator DT.EndFun
       " " -> DT.Blank
       "" -> DT.Blank
+      -- FIXME: Handle newlines correctly.
       "\n" -> DT.Blank
       "\t" -> DT.Blank
       _rest -> DT.Identifier _rest
