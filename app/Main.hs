@@ -4,7 +4,7 @@
 module Main (main) where
 
 import Control.Exception (throwIO)
-import Control.Monad.Error.Class (MonadError)
+import Control.Monad.Error.Class (MonadError, throwError)
 import Data.Bits ((.&.), (.|.))
 import Data.Bits qualified as DB
 import Data.HashMap.Strict qualified as HM
@@ -13,6 +13,7 @@ import Data.Stack qualified as S
 import Data.Text qualified as T
 import Data.Types (AppState, Eff, ForthyError, Op, Token)
 import Data.Types qualified as DT
+import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word, first, second, swap)
 import System.Environment qualified as SE
 import Text.Regex.TDFA ((=~))
@@ -144,6 +145,16 @@ handleOps =
     DT.And -> eAnd
     DT.LargerThan -> largerThan
     DT.SmallerThan -> smallerThan
+    DT.Fun -> do
+      s <- get
+      put $ s {DT.isInCompileMode = True}
+    DT.EndFun -> do
+      s <- get
+      put $
+        s
+          { DT.isInCompileMode = False,
+            DT.currentCompileIdentifier = Nothing
+          }
 
 ePrint :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => m ()
 ePrint = do
@@ -157,12 +168,24 @@ handleEffs =
     DT.Exit -> putTextLn "bye!" >> exitSuccess
 
 evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
-evalEnv token =
-  case token of
-    DT.Datum x -> S.push x
-    DT.Effect eff -> handleEffs eff
-    DT.Operator op -> handleOps op
-    DT.Blank -> pure ()
+evalEnv token = do
+  s <- get
+  let dict = DT.dictionary s
+      cm = DT.isInCompileMode s
+      cidx = DT.currentCompileIdentifier s
+
+  case cidx of
+    Nothing ->
+      case token of
+        DT.Datum x -> S.push x
+        DT.Effect eff -> handleEffs eff
+        DT.Operator op -> handleOps op
+        DT.Blank -> pure ()
+        DT.Identifier _ -> pure ()
+    Just idx ->
+      if HM.member idx dict
+        then put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
+        else put $ s {DT.dictionary = HM.insert idx V.empty dict, DT.currentCompileIdentifier = Just idx}
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
@@ -198,5 +221,6 @@ main = do
                   DT.stack = S.empty,
                   DT.dictionary = HM.empty,
                   DT.compiledActions = [],
-                  DT.isInCompileMode = False
+                  DT.isInCompileMode = False,
+                  DT.currentCompileIdentifier = Nothing
                 }

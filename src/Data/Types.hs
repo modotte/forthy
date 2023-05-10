@@ -1,18 +1,20 @@
 module Data.Types (AppState (..), Op (..), Eff (..), Token (..), ForthyError (..)) where
 
 import Data.Stack.Types (Stack)
+import Data.Vector (Vector)
 import Relude hiding (Op, Undefined, Word)
 
 data AppState = AppState
   { buffer :: [Text],
     stack :: Stack Integer,
-    dictionary :: HashMap Text [Token],
+    dictionary :: HashMap Text (Vector Token),
     compiledActions :: [Token],
-    isInCompileMode :: Bool
+    isInCompileMode :: Bool,
+    currentCompileIdentifier :: Maybe Text
   }
   deriving (Show, Eq)
 
-data ForthyError = StackUnderflow deriving (Show, Eq)
+data ForthyError = StackUnderflow | MissingIdentifier deriving (Show, Eq)
 
 data Op
   = Add
