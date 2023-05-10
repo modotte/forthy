@@ -5,8 +5,8 @@ import Data.Stack.Types
 import Data.Stack.Types qualified as ST
 import Data.Types (AppState)
 import Data.Types qualified as DT
-import Data.Types.Error (ForthyError)
-import Data.Types.Error qualified as DTE
+import Data.Forthy.Types.Error (ForthyError)
+import Data.Forthy.Types.Error qualified as DTE
 import Data.Vector qualified as V
 import Relude hiding (empty, print, state)
 

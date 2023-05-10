@@ -1,4 +1,4 @@
-module Data.Types.Error (ForthyError (..)) where
+module Data.Forthy.Types.Error (ForthyError (..)) where
 
 import Relude
 

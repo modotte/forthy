@@ -25,10 +25,14 @@ source-repository head
 
 library
   exposed-modules:
+      Data.Forthy.Effect
+      Data.Forthy.Operator
+      Data.Forthy.Types.Effect
+      Data.Forthy.Types.Error
+      Data.Forthy.Types.Operator
       Data.Stack
       Data.Stack.Types
       Data.Types
-      Data.Types.Error
   other-modules:
       Paths_forthy
   hs-source-dirs:

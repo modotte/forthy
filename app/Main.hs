@@ -14,8 +14,8 @@ import Data.Stack qualified as S
 import Data.Text qualified as T
 import Data.Types (AppState, Eff, Op, Token)
 import Data.Types qualified as DT
-import Data.Types.Error (ForthyError)
-import Data.Types.Error qualified as DTE
+import Data.Forthy.Types.Error (ForthyError)
+import Data.Forthy.Types.Error qualified as DTE
 import Data.Vector qualified as V
 import Relude hiding (Op, Undefined, Word, first, second, swap)
 import System.Environment qualified as SE
