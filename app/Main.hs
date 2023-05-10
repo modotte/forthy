@@ -3,6 +3,7 @@
 
 module Main (main) where
 
+import ASCII qualified
 import Control.Exception (throwIO)
 import Control.Monad.Error.Class (MonadError, throwError)
 import Data.Bits ((.&.), (.|.))
@@ -30,6 +31,7 @@ tokenize tt =
       "swap" -> DT.Operator DT.Swap
       "over" -> DT.Operator DT.Over
       "rot" -> DT.Operator DT.Rot
+      "emit" -> DT.Effect DT.Emit
       "=" -> DT.Operator DT.Equal
       "invert" -> DT.Operator DT.Invert
       "or" -> DT.Operator DT.Or
@@ -88,6 +90,13 @@ rot = do
   S.push second
   S.push first
   S.push third
+
+emit :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
+emit = do
+  x <- S.pop
+  case ASCII.intToCharMaybe $ fromIntegral x of
+    Nothing -> throwError $ DT.InvalidASCIIValue x
+    Just y -> putText $ ASCII.charListToText [y]
 
 eTrue :: Integer
 eTrue = -1
@@ -165,6 +174,7 @@ handleEffs =
   \case
     DT.Print -> ePrint
     DT.Exit -> putTextLn "bye!" >> exitSuccess
+    DT.Emit -> emit
 
 evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
 evalEnv token = do

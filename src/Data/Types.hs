@@ -13,7 +13,11 @@ data AppState = AppState
   }
   deriving (Show, Eq)
 
-data ForthyError = StackUnderflow | MissingIdentifier Text deriving (Show, Eq)
+data ForthyError
+  = StackUnderflow
+  | MissingIdentifier Text
+  | InvalidASCIIValue Integer
+  deriving (Show, Eq)
 
 data Op
   = Add
@@ -33,7 +37,7 @@ data Op
   | EndFun
   deriving (Show, Eq)
 
-data Eff = Print | Exit deriving (Show, Eq)
+data Eff = Print | Exit | Emit deriving (Show, Eq)
 
 data Token
   = Effect Eff

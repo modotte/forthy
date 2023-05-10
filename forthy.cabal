@@ -36,9 +36,9 @@ library
       OverloadedStrings, ImportQualifiedPost, OverloadedRecordDot, NoImplicitPrelude
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      ascii
+    , base >=4.7 && <5
     , data-default-class
-    , llvm-hs-pure
     , mtl
     , regex-tdfa
     , relude
@@ -56,10 +56,10 @@ executable forthy
       OverloadedStrings, ImportQualifiedPost, OverloadedRecordDot, NoImplicitPrelude
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      ascii
+    , base >=4.7 && <5
     , data-default-class
     , forthy
-    , llvm-hs-pure
     , mtl
     , regex-tdfa
     , relude
@@ -78,11 +78,11 @@ test-suite forthy-test
       OverloadedStrings, ImportQualifiedPost, OverloadedRecordDot, NoImplicitPrelude
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      ascii
+    , base >=4.7 && <5
     , data-default-class
     , forthy
     , hspec
-    , llvm-hs-pure
     , mtl
     , regex-tdfa
     , relude

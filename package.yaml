@@ -25,8 +25,8 @@ dependencies:
   - vector
   - regex-tdfa
   - split
-  - llvm-hs-pure # remove if we don't want to make a compiler anymore
   - mtl
+  - ascii
   - data-default-class
 
 ghc-options:
