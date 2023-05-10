@@ -130,8 +130,9 @@ smallerThan = do
   S.push $ if y < x then eTrue else eFalse
 
 handleOps :: (MonadState AppState m, MonadError ForthyError m) => Op -> m ()
-handleOps =
-  \case
+handleOps op = do
+  s <- get
+  case op of
     DT.Add -> add
     DT.Multiply -> multiply
     DT.Dup -> dup
@@ -145,11 +146,8 @@ handleOps =
     DT.And -> eAnd
     DT.LargerThan -> largerThan
     DT.SmallerThan -> smallerThan
-    DT.Fun -> do
-      s <- get
-      put $ s {DT.isInCompileMode = True}
+    DT.Fun -> put $ s {DT.isInCompileMode = True}
     DT.EndFun -> do
-      s <- get
       put $
         s
           { DT.compiledActions = V.empty,
@@ -182,15 +180,17 @@ evalEnv token = do
           DT.Identifier idx -> put $ s {DT.currentCompileIdentifier = Just idx}
           _ -> pure ()
       Just idx ->
-        if HM.member idx dict
-          then put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
-          else put $ s {DT.dictionary = HM.insert idx V.empty dict, DT.currentCompileIdentifier = Just idx}
+        if token == DT.Operator DT.EndFun
+          then pure ()
+          else
+            if HM.member idx dict
+              then put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
+              else put $ s {DT.dictionary = HM.insert idx V.empty dict}
     else case token of
       DT.Datum x -> S.push x
       DT.Effect eff -> handleEffs eff
       DT.Operator op -> handleOps op
       DT.Blank -> pure ()
-      DT.Identifier _ -> throwError DT.MissingIdentifier
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
