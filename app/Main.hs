@@ -147,7 +147,7 @@ handleOps op = do
     DT.LargerThan -> largerThan
     DT.SmallerThan -> smallerThan
     DT.Fun -> put $ s {DT.isInCompileMode = True}
-    DT.EndFun -> do
+    DT.EndFun ->
       put $
         s
           { DT.compiledActions = V.empty,
@@ -170,22 +170,19 @@ evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token
 evalEnv token = do
   s <- get
   let dict = DT.dictionary s
-      cm = DT.isInCompileMode s
+      compileMode = DT.isInCompileMode s
       cidx = DT.currentCompileIdentifier s
 
-  if cm
+  if compileMode
     then case cidx of
       Nothing ->
         case token of
-          DT.Identifier idx -> put $ s {DT.currentCompileIdentifier = Just idx}
+          DT.Identifier idx -> put $ s {DT.dictionary = HM.insert idx V.empty dict, DT.currentCompileIdentifier = Just idx}
           _ -> pure ()
       Just idx ->
         if token == DT.Operator DT.EndFun
           then pure ()
-          else
-            if HM.member idx dict
-              then put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
-              else put $ s {DT.dictionary = HM.insert idx V.empty dict}
+          else put $ s {DT.dictionary = HM.update (\xs -> Just $ V.snoc xs token) idx dict}
     else case token of
       DT.Datum x -> S.push x
       DT.Effect eff -> handleEffs eff

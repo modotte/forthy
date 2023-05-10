@@ -1,1 +1,1 @@
-fun myId 10 20 30 40 + * . endfun 1 2 +
+fun myId 20 30 40 + * . endfun
