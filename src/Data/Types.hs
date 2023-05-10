@@ -13,7 +13,7 @@ data AppState = AppState
   }
   deriving (Show, Eq)
 
-data ForthyError = StackUnderflow | MissingIdentifier deriving (Show, Eq)
+data ForthyError = StackUnderflow | MissingIdentifier Text deriving (Show, Eq)
 
 data Op
   = Add

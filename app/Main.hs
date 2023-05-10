@@ -193,7 +193,10 @@ evalEnv token = do
       DT.Effect eff -> handleEffs eff
       DT.Operator op -> handleOps op
       DT.Blank -> pure ()
-      DT.Identifier _ -> throwError DT.MissingIdentifier
+      DT.Identifier idx -> do
+        case HM.lookup idx dict of
+          Nothing -> throwError $ DT.MissingIdentifier idx
+          Just tokens -> pure ()
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do
