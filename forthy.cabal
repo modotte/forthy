@@ -31,6 +31,7 @@ library
       Data.Forthy.Types.Effect
       Data.Forthy.Types.Error
       Data.Forthy.Types.Operator
+      Data.Forthy.Types.Token
       Data.Stack
       Data.Stack.Types
       Data.Types
