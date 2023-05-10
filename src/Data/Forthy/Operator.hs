@@ -1,29 +1,14 @@
 module Data.Forthy.Operator
   ( module Data.Forthy.Types.Operator,
-    add,
-    multiply,
-    dup,
-    swap,
-    over,
-    rot,
-    emit,
-    equal,
-    invert,
-    or,
-    and,
-    largerThan,
-    smallerThan,
     handleOps,
   )
 where
 
-import ASCII qualified
-import Control.Monad.Error.Class (MonadError, throwError)
+import Control.Monad.Error.Class (MonadError)
 import Data.Bits (Bits ((.|.)), (.&.))
 import Data.Bits qualified as DB
 import Data.Forthy.Constants qualified as DFC
 import Data.Forthy.Types.Error (ForthyError)
-import Data.Forthy.Types.Error qualified as DFTE
 import Data.Forthy.Types.Operator
 import Data.Stack qualified as S
 import Data.Types (AppState)
@@ -71,13 +56,6 @@ rot = do
   S.push second
   S.push first
   S.push third
-
-emit :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
-emit = do
-  x <- S.pop
-  case ASCII.intToCharMaybe $ fromIntegral x of
-    Nothing -> throwError $ DFTE.InvalidASCIIValue x
-    Just y -> putText $ ASCII.charListToText [y]
 
 equal :: (MonadState AppState m, MonadError ForthyError m) => m ()
 equal = do
