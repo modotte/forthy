@@ -1,1 +1,1 @@
-fun myId 20 30 40 + * . endfun 1 2 + . fun say-add 948 2 + . endfun myId
+fun myId 20 30 40 + * . endfun 1 2 + . fun say-add 948 2 + . endfun myId say-add myId say-add myId say-add

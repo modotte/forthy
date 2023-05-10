@@ -196,7 +196,11 @@ evalEnv token = do
       DT.Identifier idx -> do
         case HM.lookup idx dict of
           Nothing -> throwError $ DT.MissingIdentifier idx
-          Just tokens -> pure ()
+          Just tokens ->
+            foldr
+              (\x acc -> evalEnv x >>= pure acc)
+              (pure ())
+              tokens
 
 eval :: (MonadIO m, MonadState AppState m, MonadError ForthyError m) => m ()
 eval = do

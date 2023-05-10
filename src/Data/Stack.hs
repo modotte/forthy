@@ -5,22 +5,23 @@ import Data.Stack.Types
 import Data.Stack.Types qualified as ST
 import Data.Types (AppState, ForthyError (..))
 import Data.Types qualified as DT
+import Data.Vector (Vector)
 import Data.Vector qualified as V
 import Relude hiding (empty, print, state)
 
-empty :: Stack Integer
+empty :: Stack a
 empty = ST.Stack V.empty
 
-addStack :: Integer -> Stack Integer -> Stack Integer
+addStack :: a -> Stack a -> Stack a
 addStack x (ST.Stack s) = ST.Stack $ V.snoc s x
 
-push :: (MonadState AppState m) => Integer -> m ()
+push :: MonadState AppState m => Integer -> m ()
 push x =
   modify' $ \state ->
     let stack = addStack x $ DT.stack state
      in state {DT.stack = stack}
 
-updateStack :: (MonadState AppState m) => Stack Integer -> m ()
+updateStack :: MonadState AppState m => Stack Integer -> m ()
 updateStack stack = do
   oldState <- get
   put $ oldState {DT.stack = stack}
