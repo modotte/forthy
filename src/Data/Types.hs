@@ -37,7 +37,7 @@ data Op
   | EndFun
   deriving (Show, Eq)
 
-data Eff = Print | Exit | Emit deriving (Show, Eq)
+data Eff = Print | Exit | Emit | Newline deriving (Show, Eq)
 
 data Token
   = Effect Eff

@@ -32,6 +32,7 @@ tokenize tt =
       "over" -> DT.Operator DT.Over
       "rot" -> DT.Operator DT.Rot
       "emit" -> DT.Effect DT.Emit
+      "cr" -> DT.Effect DT.Newline
       "=" -> DT.Operator DT.Equal
       "invert" -> DT.Operator DT.Invert
       "or" -> DT.Operator DT.Or
@@ -175,6 +176,7 @@ handleEffs =
     DT.Print -> ePrint
     DT.Exit -> putTextLn "bye!" >> exitSuccess
     DT.Emit -> emit
+    DT.Newline -> putTextLn ""
 
 evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
 evalEnv token = do
