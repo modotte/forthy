@@ -99,7 +99,10 @@ runExceptStateT s = runExceptT . flip runStateT s
 
 splitText :: Text -> [Text]
 splitText source =
-  filter (/= "") (T.pack <$> DLS.splitOneOf " \n\t" (T.unpack source))
+  filter (/= "") splitted
+  where
+    splitted = T.pack <$> DLS.splitOneOf " \n\t" text
+    text = T.unpack source
 
 main :: IO ()
 main = do
