@@ -47,11 +47,6 @@ tokenize tt =
       "bye" -> DFTT.Effect DFTEFF.Exit
       "fun" -> DFTT.Operator DFTO.Fun
       "endfun" -> DFTT.Operator DFTO.EndFun
-      " " -> DFTT.Blank
-      "" -> DFTT.Blank
-      -- FIXME: Handle newlines correctly.
-      "\n" -> DFTT.Blank
-      "\t" -> DFTT.Blank
       _rest -> DFTT.Identifier _rest
 
 evalEnv :: (MonadState AppState m, MonadIO m, MonadError ForthyError m) => Token -> m ()
@@ -103,7 +98,8 @@ runExceptStateT :: s -> StateT s (ExceptT e m) a -> m (Either e (a, s))
 runExceptStateT s = runExceptT . flip runStateT s
 
 splitText :: Text -> [Text]
-splitText source = T.pack <$> DLS.splitOn " " (T.unpack source)
+splitText source =
+  filter (/= "") (T.pack <$> DLS.splitOneOf " \n\t" (T.unpack source))
 
 main :: IO ()
 main = do
@@ -117,6 +113,7 @@ main = do
         Right source -> do
           t <- runExceptStateT appState eval
           putTextLn $ "\n\n<<DEBUG VIEW>>\n" <> show t
+          print $ splitText source
           where
             appState =
               AS.AppState
